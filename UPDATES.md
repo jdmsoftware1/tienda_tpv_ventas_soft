@@ -1,5 +1,36 @@
 # UPDATES.md
 
+## [v1.0.3] - 2025-12-02 - Sistema de Compras Mejorado + UI
+
+### Sistema de Compras Rediseñado
+*   ✅ **Búsqueda de cliente por código o nombre** en el modal de nueva compra
+*   ✅ **Carrito de compras** con lista de artículos, cantidades y subtotales
+*   ✅ **Escaneo de código de barras** para agregar artículos rápidamente
+*   ✅ **Campo de descuento** en euros aplicable al total
+*   ✅ **Opción VARIOS** para compras sin artículos específicos
+*   ✅ **Generación de tickets** con vista previa e impresión
+*   ✅ **Cálculo automático** de total en backend cuando hay artículos
+
+### Modal de Compra Rápida en Clientes
+*   ✅ Rediseñado con dos paneles (artículos + carrito)
+*   ✅ Escaneo de código de barras
+*   ✅ Lista de artículos disponibles
+*   ✅ Carrito con subtotal, descuento y total
+*   ✅ Opción VARIOS integrada
+
+### Mejoras de UI
+*   ✅ **Paleta de colores verde** basada en el logotipo de la marca
+*   ✅ Colores centralizados en `tailwind.config.js` y `src/index.css`
+*   ✅ Cambio de etiqueta "Monto" por "Cantidad" en toda la app
+*   ✅ Versión actualizada a 1.0.3 en footer
+
+### Backend
+*   ✅ DTO `CreateCompraDto.total` ahora es opcional (se calcula automáticamente)
+*   ✅ Descripción "VARIOS" por defecto cuando `es_varios=true`
+*   ✅ Tests añadidos para compras con VARIOS y múltiples artículos
+
+---
+
 ## [v1.0.2] - 2025-12-02 - Migración de Datos Legacy
 
 ### Migración de Base de Datos

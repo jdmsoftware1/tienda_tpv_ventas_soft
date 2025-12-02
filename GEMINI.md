@@ -5,7 +5,7 @@
 - **Backend**: NestJS 11 + TypeORM + PostgreSQL (Neon)
 - **Frontend**: React 18 + Vite + TailwindCSS + Recharts
 - **Autenticación**: Google OAuth 2.0
-- **Versión**: 1.0.2
+- **Versión**: 1.0.3
 
 ## Prompt Inicial (Requisitos del Cliente)
 Ver archivo `prompts/PROMPT INICIAL.txt` para los requisitos originales del cliente.

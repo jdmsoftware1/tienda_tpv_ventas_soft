@@ -63,11 +63,13 @@ export default function Compras() {
   
   // Form data
   const [clienteId, setClienteId] = useState('');
+  const [clienteSearch, setClienteSearch] = useState('');
   const [carrito, setCarrito] = useState<ItemCarrito[]>([]);
   const [codigoBarras, setCodigoBarras] = useState('');
   const [cantidadInput, setCantidadInput] = useState('1');
   const [montoVarios, setMontoVarios] = useState('');
   const [descripcionVarios, setDescripcionVarios] = useState('');
+  const [descuento, setDescuento] = useState('0');
   
   // Ticket data
   const [ticketCompra, setTicketCompra] = useState<Compra | null>(null);
@@ -182,9 +184,16 @@ export default function Compras() {
     setCarrito(carrito.filter((_, i) => i !== index));
   };
 
-  // Calcular total del carrito
-  const calcularTotal = () => {
+  // Calcular subtotal del carrito
+  const calcularSubtotal = () => {
     return carrito.reduce((sum, item) => sum + (item.cantidad * item.precio_unitario), 0);
+  };
+
+  // Calcular total con descuento
+  const calcularTotal = () => {
+    const subtotal = calcularSubtotal();
+    const desc = parseFloat(descuento) || 0;
+    return Math.max(0, subtotal - desc);
   };
 
   // Registrar compra con artículos
@@ -202,9 +211,12 @@ export default function Compras() {
     }
     
     try {
+      const desc = parseFloat(descuento) || 0;
       const payload = {
         cliente_id: clienteId,
         es_varios: false,
+        total: calcularTotal(), // Total con descuento aplicado
+        descripcion: desc > 0 ? `Descuento: ${formatCurrency(desc)}` : undefined,
         articulos: carrito.map(item => ({
           articulo_id: item.articulo_id,
           cantidad: item.cantidad,
@@ -268,11 +280,13 @@ export default function Compras() {
 
   const resetForm = () => {
     setClienteId('');
+    setClienteSearch('');
     setCarrito([]);
     setCodigoBarras('');
     setCantidadInput('1');
     setMontoVarios('');
     setDescripcionVarios('');
+    setDescuento('0');
   };
 
   const openCreateModal = () => {
@@ -480,23 +494,82 @@ export default function Compras() {
               </button>
             </div>
 
-            {/* Selección de cliente */}
+            {/* Selección de cliente con búsqueda */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Cliente *
+                Cliente * (buscar por código o nombre)
               </label>
-              <select
-                value={clienteId}
-                onChange={(e) => setClienteId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              >
-                <option value="">Seleccione un cliente</option>
-                {clientes.map((cliente) => (
-                  <option key={cliente.id} value={cliente.id}>
-                    {cliente.nombre} ({cliente.num_cliente})
-                  </option>
-                ))}
-              </select>
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  value={clienteSearch}
+                  onChange={(e) => setClienteSearch(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="Escriba código o nombre del cliente..."
+                />
+                {clienteSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setClienteSearch('')}
+                    className="px-3 py-2 text-gray-500 hover:text-gray-700"
+                  >
+                    <X size={20} />
+                  </button>
+                )}
+              </div>
+              {clienteSearch ? (
+                <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-lg">
+                  {clientes
+                    .filter(c => 
+                      c.num_cliente.toLowerCase().includes(clienteSearch.toLowerCase()) ||
+                      c.nombre.toLowerCase().includes(clienteSearch.toLowerCase())
+                    )
+                    .slice(0, 10)
+                    .map((cliente) => (
+                      <button
+                        key={cliente.id}
+                        type="button"
+                        onClick={() => {
+                          setClienteId(cliente.id);
+                          setClienteSearch('');
+                        }}
+                        className={`w-full text-left px-3 py-2 hover:bg-primary-50 border-b border-gray-100 last:border-b-0 ${
+                          clienteId === cliente.id ? 'bg-primary-100' : ''
+                        }`}
+                      >
+                        <span className="font-medium">{cliente.num_cliente}</span>
+                        <span className="text-gray-600 ml-2">- {cliente.nombre}</span>
+                      </button>
+                    ))}
+                  {clientes.filter(c => 
+                    c.num_cliente.toLowerCase().includes(clienteSearch.toLowerCase()) ||
+                    c.nombre.toLowerCase().includes(clienteSearch.toLowerCase())
+                  ).length === 0 && (
+                    <div className="px-3 py-2 text-gray-500 text-sm">No se encontraron clientes</div>
+                  )}
+                </div>
+              ) : (
+                <select
+                  value={clienteId}
+                  onChange={(e) => setClienteId(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  <option value="">Seleccione un cliente o busque arriba</option>
+                  {clientes.slice(0, 20).map((cliente) => (
+                    <option key={cliente.id} value={cliente.id}>
+                      {cliente.num_cliente} - {cliente.nombre}
+                    </option>
+                  ))}
+                  {clientes.length > 20 && (
+                    <option disabled>... use la búsqueda para ver más</option>
+                  )}
+                </select>
+              )}
+              {selectedCliente && (
+                <div className="mt-2 p-2 bg-primary-50 rounded-lg text-sm">
+                  <strong>Seleccionado:</strong> {selectedCliente.num_cliente} - {selectedCliente.nombre}
+                </div>
+              )}
             </div>
 
             {selectedCliente && (
@@ -643,8 +716,25 @@ export default function Compras() {
                         </table>
                       </div>
                       
-                      <div className="border-t border-gray-200 pt-4">
-                        <div className="flex justify-between items-center text-lg font-bold mb-4">
+                      <div className="border-t border-gray-200 pt-4 space-y-3">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600">Subtotal:</span>
+                          <span>{formatCurrency(calcularSubtotal())}</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <label className="text-sm text-gray-600">Descuento (€):</label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={descuento}
+                            onChange={(e) => setDescuento(e.target.value)}
+                            className="w-24 px-2 py-1 border border-gray-300 rounded text-right focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          />
+                        </div>
+                        
+                        <div className="flex justify-between items-center text-lg font-bold">
                           <span>TOTAL:</span>
                           <span className="text-primary-600">{formatCurrency(calcularTotal())}</span>
                         </div>

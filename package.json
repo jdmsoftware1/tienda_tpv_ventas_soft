@@ -1,6 +1,6 @@
 {
   "name": "tienda_project_nestjs",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Sistema de Gestión de Tienda - POS con NestJS y React",
   "author": "JDMSoftware",
   "private": true,
