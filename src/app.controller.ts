@@ -38,4 +38,14 @@ export class AppController {
       frontendUrl: process.env.FRONTEND_URL,
     };
   }
+
+  @Public()
+  @Get('api/health')
+  healthCheck() {
+    return {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+    };
+  }
 }
