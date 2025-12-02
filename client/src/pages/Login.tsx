@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
-import { ShoppingBag } from 'lucide-react';
+import Logo from '../Images/Decoraciones.png';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -37,18 +37,20 @@ export default function Login() {
   }, [token, searchParams, navigate, setAuth]);
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:3000/api/auth/google';
+    // Usar la URL actual para soportar tanto desarrollo como producción
+    const baseUrl = window.location.origin;
+    window.location.href = `${baseUrl}/auth/google`;
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-600 rounded-full mb-4">
-            <ShoppingBag className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center mb-4">
+            <img src={Logo} alt="Logo" className="w-24 h-24 object-contain" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Sistema de Gestión
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Decoraciones Ángel e Hijas
           </h1>
           <p className="text-gray-600">Inicia sesión para continuar</p>
         </div>
