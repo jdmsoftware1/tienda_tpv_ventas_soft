@@ -1,4 +1,16 @@
-import { Calendar, X } from 'lucide-react';
+import { Calendar, X, FileText } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import api from '../lib/api';
+
+interface CierreMes {
+  id: string;
+  fecha_inicio: string;
+  fecha_fin: string;
+  total_ventas: number;
+  total_pagos: number;
+  total_devoluciones: number;
+  cerrado: boolean;
+}
 
 interface DateFiltersProps {
   filterType: string;
@@ -8,6 +20,7 @@ interface DateFiltersProps {
   fechaFin: string;
   setFechaFin: (fecha: string) => void;
   onClear: () => void;
+  showCierres?: boolean;
 }
 
 export default function DateFilters({
@@ -18,7 +31,32 @@ export default function DateFilters({
   fechaFin,
   setFechaFin,
   onClear,
+  showCierres = true,
 }: DateFiltersProps) {
+  const [cierres, setCierres] = useState<CierreMes[]>([]);
+  const [showCierresDropdown, setShowCierresDropdown] = useState(false);
+
+  useEffect(() => {
+    if (showCierres) {
+      api.get('/cierre-mes')
+        .then(res => setCierres(res.data))
+        .catch(err => console.error('Error al cargar cierres:', err));
+    }
+  }, [showCierres]);
+
+  const handleCierreSelect = (cierre: CierreMes) => {
+    setFilterType(`cierre-${cierre.id}`);
+    setFechaInicio(cierre.fecha_inicio.split('T')[0]);
+    setFechaFin(cierre.fecha_fin.split('T')[0]);
+    setShowCierresDropdown(false);
+  };
+
+  const formatCierreName = (cierre: CierreMes) => {
+    const inicio = new Date(cierre.fecha_inicio);
+    const fin = new Date(cierre.fecha_fin);
+    return `${inicio.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })} - ${fin.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}`;
+  };
+
   const handleFilterTypeChange = (type: string) => {
     setFilterType(type);
     const now = new Date();
@@ -118,6 +156,42 @@ export default function DateFilters({
         >
           Personalizado
         </button>
+
+        {/* Botón Cierres de Mes */}
+        {showCierres && cierres.length > 0 && (
+          <div className="relative">
+            <button
+              onClick={() => setShowCierresDropdown(!showCierresDropdown)}
+              className={`flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                filterType.startsWith('cierre-') 
+                  ? 'bg-purple-600 text-white' 
+                  : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+              }`}
+            >
+              <FileText size={14} />
+              Cierres
+            </button>
+            
+            {showCierresDropdown && (
+              <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[200px] max-h-60 overflow-y-auto">
+                {cierres.map((cierre) => (
+                  <button
+                    key={cierre.id}
+                    onClick={() => handleCierreSelect(cierre)}
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-purple-50 border-b border-gray-100 last:border-b-0 ${
+                      filterType === `cierre-${cierre.id}` ? 'bg-purple-100' : ''
+                    }`}
+                  >
+                    <div className="font-medium">{formatCierreName(cierre)}</div>
+                    <div className="text-xs text-gray-500">
+                      Ventas: €{Number(cierre.total_ventas).toFixed(2)}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {filterType === 'personalizado' && (

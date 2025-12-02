@@ -233,37 +233,43 @@ export default function Devoluciones() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredDevoluciones.map((devolucion) => (
-                <tr key={devolucion.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(devolucion.created_at).toLocaleString('es-ES')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {devolucion.cliente.nombre}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {devolucion.cliente.num_cliente}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-orange-600">
-                    <div className="flex items-center gap-1">
-                      <RotateCcw size={16} />
-                      {formatCurrency(devolucion.monto)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-                    {devolucion.descripcion || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className={`font-semibold ${
-                      devolucion.cliente.balance > 0 ? 'text-red-600' : devolucion.cliente.balance < 0 ? 'text-green-600' : 'text-gray-600'
-                    }`}>
-                      {formatCurrency(Math.abs(devolucion.cliente.balance))}
-                      {devolucion.cliente.balance > 0 && ' (Debe)'}
-                      {devolucion.cliente.balance < 0 && ' (Favor)'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {filteredDevoluciones.map((devolucion) => {
+                // Obtener balance actualizado del cliente
+                const clienteActual = clientes.find(c => c.id === devolucion.cliente.id);
+                const balance = clienteActual?.balance ?? devolucion.cliente.balance ?? 0;
+                
+                return (
+                  <tr key={devolucion.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(devolucion.created_at).toLocaleString('es-ES')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {devolucion.cliente.nombre}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {devolucion.cliente.num_cliente}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-orange-600">
+                      <div className="flex items-center gap-1">
+                        <RotateCcw size={16} />
+                        {formatCurrency(Number(devolucion.monto))}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                      {devolucion.descripcion || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <span className={`font-semibold ${
+                        balance > 0 ? 'text-red-600' : balance < 0 ? 'text-green-600' : 'text-gray-600'
+                      }`}>
+                        {formatCurrency(Math.abs(balance))}
+                        {balance > 0 && ' (Debe)'}
+                        {balance < 0 && ' (Favor)'}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

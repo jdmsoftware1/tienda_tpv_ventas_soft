@@ -229,31 +229,37 @@ export default function Pagos() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredPagos.map((pago) => (
-                <tr key={pago.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(pago.created_at).toLocaleString('es-ES')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {pago.cliente.nombre}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {pago.cliente.num_cliente}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                    {formatCurrency(pago.monto)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className={`font-semibold ${
-                      pago.cliente.balance > 0 ? 'text-red-600' : pago.cliente.balance < 0 ? 'text-green-600' : 'text-gray-600'
-                    }`}>
-                      {formatCurrency(Math.abs(pago.cliente.balance))}
-                      {pago.cliente.balance > 0 && ' (Debe)'}
-                      {pago.cliente.balance < 0 && ' (Favor)'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {filteredPagos.map((pago) => {
+                // Obtener balance actualizado del cliente
+                const clienteActual = clientes.find(c => c.id === pago.cliente.id);
+                const balance = clienteActual?.balance ?? pago.cliente.balance ?? 0;
+                
+                return (
+                  <tr key={pago.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(pago.created_at).toLocaleString('es-ES')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {pago.cliente.nombre}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {pago.cliente.num_cliente}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                      {formatCurrency(Number(pago.monto))}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <span className={`font-semibold ${
+                        balance > 0 ? 'text-red-600' : balance < 0 ? 'text-green-600' : 'text-gray-600'
+                      }`}>
+                        {formatCurrency(Math.abs(balance))}
+                        {balance > 0 && ' (Debe)'}
+                        {balance < 0 && ' (Favor)'}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
