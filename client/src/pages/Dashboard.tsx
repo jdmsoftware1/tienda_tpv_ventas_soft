@@ -150,7 +150,7 @@ export default function Dashboard() {
       value: formatCurrency(stats?.total_ventas || 0),
       count: stats?.cantidad_ventas || 0,
       icon: ShoppingCart,
-      color: 'bg-blue-500',
+      color: 'bg-primary-500',
       trend: 'up',
     },
     {
@@ -182,7 +182,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
   }
@@ -306,7 +306,7 @@ export default function Dashboard() {
             <h2 className="text-lg font-semibold text-gray-900">
               Top Deudores
             </h2>
-            <a href="/clientes" className="text-sm text-blue-600 hover:underline">
+            <a href="/clientes" className="text-sm text-primary-600 hover:underline">
               Ver todos
             </a>
           </div>
@@ -315,7 +315,7 @@ export default function Dashboard() {
               {topDeudores.map((cliente, index) => (
                 <div key={cliente.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium">
+                    <span className="w-6 h-6 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs font-medium">
                       {index + 1}
                     </span>
                     <span className="font-medium text-gray-900 truncate max-w-[120px]">
@@ -342,7 +342,7 @@ export default function Dashboard() {
             <h2 className="text-lg font-semibold text-gray-900">
               Stock Bajo
             </h2>
-            <a href="/articulos" className="text-sm text-blue-600 hover:underline">
+            <a href="/articulos" className="text-sm text-primary-600 hover:underline">
               Ver todos
             </a>
           </div>
@@ -380,7 +380,7 @@ export default function Dashboard() {
             <h2 className="text-lg font-semibold text-gray-900">
               Compras Recientes
             </h2>
-            <a href="/compras" className="text-sm text-blue-600 hover:underline">
+            <a href="/compras" className="text-sm text-primary-600 hover:underline">
               Ver todas
             </a>
           </div>
@@ -396,7 +396,7 @@ export default function Dashboard() {
                       {format(new Date(compra.created_at), 'dd/MM/yyyy HH:mm')}
                     </p>
                   </div>
-                  <span className="text-blue-600 font-semibold">
+                  <span className="text-primary-600 font-semibold">
                     {formatCurrency(Number(compra.total))}
                   </span>
                 </div>
@@ -419,45 +419,45 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <a
             href="/clientes"
-            className="p-4 border-2 border-gray-100 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-center group"
+            className="p-4 border-2 border-gray-100 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-all text-center group"
           >
-            <Users className="w-8 h-8 mx-auto mb-2 text-gray-400 group-hover:text-blue-600" />
-            <p className="font-medium text-gray-700 group-hover:text-blue-600">Clientes</p>
+            <Users className="w-8 h-8 mx-auto mb-2 text-gray-400 group-hover:text-primary-600" />
+            <p className="font-medium text-gray-700 group-hover:text-primary-600">Clientes</p>
           </a>
           <a
             href="/compras"
-            className="p-4 border-2 border-gray-100 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-center group"
+            className="p-4 border-2 border-gray-100 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-all text-center group"
           >
-            <ShoppingCart className="w-8 h-8 mx-auto mb-2 text-gray-400 group-hover:text-blue-600" />
-            <p className="font-medium text-gray-700 group-hover:text-blue-600">Compras</p>
+            <ShoppingCart className="w-8 h-8 mx-auto mb-2 text-gray-400 group-hover:text-primary-600" />
+            <p className="font-medium text-gray-700 group-hover:text-primary-600">Compras</p>
           </a>
           <a
             href="/pagos"
-            className="p-4 border-2 border-gray-100 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-center group"
+            className="p-4 border-2 border-gray-100 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-all text-center group"
           >
-            <DollarSign className="w-8 h-8 mx-auto mb-2 text-gray-400 group-hover:text-blue-600" />
-            <p className="font-medium text-gray-700 group-hover:text-blue-600">Pagos</p>
+            <DollarSign className="w-8 h-8 mx-auto mb-2 text-gray-400 group-hover:text-primary-600" />
+            <p className="font-medium text-gray-700 group-hover:text-primary-600">Pagos</p>
           </a>
           <a
             href="/articulos"
-            className="p-4 border-2 border-gray-100 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-center group"
+            className="p-4 border-2 border-gray-100 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-all text-center group"
           >
-            <Package className="w-8 h-8 mx-auto mb-2 text-gray-400 group-hover:text-blue-600" />
-            <p className="font-medium text-gray-700 group-hover:text-blue-600">Artículos</p>
+            <Package className="w-8 h-8 mx-auto mb-2 text-gray-400 group-hover:text-primary-600" />
+            <p className="font-medium text-gray-700 group-hover:text-primary-600">Artículos</p>
           </a>
           <a
             href="/empleados"
-            className="p-4 border-2 border-gray-100 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-center group"
+            className="p-4 border-2 border-gray-100 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-all text-center group"
           >
-            <Users className="w-8 h-8 mx-auto mb-2 text-gray-400 group-hover:text-blue-600" />
-            <p className="font-medium text-gray-700 group-hover:text-blue-600">Empleados</p>
+            <Users className="w-8 h-8 mx-auto mb-2 text-gray-400 group-hover:text-primary-600" />
+            <p className="font-medium text-gray-700 group-hover:text-primary-600">Empleados</p>
           </a>
           <a
             href="/devoluciones"
-            className="p-4 border-2 border-gray-100 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-center group"
+            className="p-4 border-2 border-gray-100 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-all text-center group"
           >
-            <Package className="w-8 h-8 mx-auto mb-2 text-gray-400 group-hover:text-blue-600" />
-            <p className="font-medium text-gray-700 group-hover:text-blue-600">Devoluciones</p>
+            <Package className="w-8 h-8 mx-auto mb-2 text-gray-400 group-hover:text-primary-600" />
+            <p className="font-medium text-gray-700 group-hover:text-primary-600">Devoluciones</p>
           </a>
         </div>
       </div>

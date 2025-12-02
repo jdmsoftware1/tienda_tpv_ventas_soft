@@ -1,9 +1,24 @@
 # GEMINI.md - Project Context & Requirements
 
 ## Project Overview
-Sistema de gestión de tienda (POS) simple, hermoso y escalable.
-Construido con NestJS (Backend completo).
-Desplegable en Render (Serverless).
+**Sistema de Gestión de Tienda - POS** para "Decoraciones Ángel e Hijas"
+- **Backend**: NestJS 11 + TypeORM + PostgreSQL (Neon)
+- **Frontend**: React 18 + Vite + TailwindCSS + Recharts
+- **Autenticación**: Google OAuth 2.0
+- **Versión**: 1.0.2
+
+## Prompt Inicial (Requisitos del Cliente)
+Ver archivo `prompts/PROMPT INICIAL.txt` para los requisitos originales del cliente.
+
+### Resumen de Requisitos Clave:
+- **Clientes**: teléfono, num_cliente (manual), nombre, balance calculado (compras - pagos - devoluciones)
+- **Empleados**: id_empleado, nombre. Los clientes van asociados a empleados
+- **Compras**: con artículos o "VARIOS" (sin control de stock)
+- **Artículos**: código de barras, precio compra, precio venta, cantidad
+- **Pagos y Devoluciones**: registro simple, afectan el balance del cliente
+- **Cierre de Mes**: manual, con rango de fechas personalizable
+- **UI**: Sencilla, bonita, sidebar colapsable con iconos, buscadores rápidos
+- **Filtros por Empleado**: En todas las vistas excepto artículos
 
 ## Core Features Implementadas
 
@@ -151,15 +166,68 @@ Desplegable en Render (Serverless).
 *   **Validación**: DTOs con class-validator
 *   **Backup**: Sistema de backup SQL manual
 
-## Próximos Pasos (Frontend)
-*   Integrar React + Vite
-*   Sidebar colapsable con iconos
-*   Búsquedas rápidas
-*   Botones rápidos en clientes (Pago, Compra, Devolución, Editar)
-*   Vista Analytics tipo Excel
-*   Gráficas de progreso
-*   Lector de código de barras
+## Frontend Implementado (React + Vite)
 
-## Importación de Datos
-*   Pendiente: Endpoint para importar clientes desde CSV
-*   El sistema soporta creación manual de todos los datos
+### Páginas Implementadas
+- **Dashboard**: Gráficos con Recharts, estadísticas del mes, top deudores, stock bajo
+- **Clientes**: CRUD completo, búsqueda, balance, filtro por empleado
+- **Compras**: Registro con artículos o "VARIOS", filtro por empleado
+- **Pagos**: Registro simple, filtro por empleado
+- **Devoluciones**: Registro simple, filtro por empleado
+- **Artículos**: CRUD completo, búsqueda por código de barras
+- **Empleados**: CRUD completo
+- **Cierre de Mes**: Solo admin (en desarrollo)
+
+### Características UI
+- Sidebar colapsable con iconos (Lucide)
+- Filtro por empleado en todas las vistas (excepto artículos)
+- Búsquedas rápidas por nombre o código
+- Footer con versión y copyright JDMSoftware
+- Diseño responsive con TailwindCSS
+
+## Migración de Datos Legacy
+
+### Script de Migración (`scripts/migrate-all.ts`)
+Migra datos desde MySQL (tiendaNew.sql) a PostgreSQL (Neon):
+- **Empleados**: tabla `trabajadores` → `empleados`
+- **Clientes**: tabla `clientes` → `clientes` (con relación empleado)
+- **Mapeo de campos**:
+  - `cod_user` → `id_empleado`
+  - `cod_cliente` → `num_cliente`
+  - `nombre_c + apellidos_c` → `nombre`
+  - `cod_user` (clientes) → `empleado_id` (FK)
+- **Campos omitidos**: `debe`, `pass`, `email_c`, `DNI_NIF`
+
+### Ejecutar Migración
+```bash
+npm run migrate:data
+```
+
+## Estructura del Proyecto
+```
+tienda_project_nestjs/
+├── src/                    # Backend NestJS
+│   ├── auth/               # Autenticación Google OAuth
+│   ├── clientes/           # Módulo de clientes
+│   ├── empleados/          # Módulo de empleados
+│   ├── articulos/          # Módulo de artículos
+│   ├── compras/            # Módulo de compras
+│   ├── pagos/              # Módulo de pagos
+│   ├── devoluciones/       # Módulo de devoluciones
+│   ├── cierre-mes/         # Módulo de cierre de mes
+│   ├── backup/             # Módulo de backup
+│   └── entities/           # Entidades TypeORM
+├── client/                 # Frontend React
+│   └── src/
+│       ├── components/     # Componentes reutilizables
+│       ├── pages/          # Páginas de la aplicación
+│       ├── lib/            # Utilidades (api, auth)
+│       └── store/          # Estado global (Zustand)
+├── scripts/                # Scripts de migración
+├── prompts/                # Prompts originales del cliente
+└── tmp/                    # Archivos temporales (gitignored)
+```
+
+## Datos Migrados (v1.0.2)
+- **6 empleados**: David, fe, Bego, Jimenez, Yaiza, BegoJi
+- **420 clientes** distribuidos por empleado

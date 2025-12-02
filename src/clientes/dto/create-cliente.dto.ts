@@ -13,6 +13,10 @@ export class CreateClienteDto {
   @IsOptional()
   telefono?: string;
 
+  @IsString()
+  @IsOptional()
+  direccion?: string;
+
   @IsUUID()
   @IsOptional()
   empleado_id?: string;

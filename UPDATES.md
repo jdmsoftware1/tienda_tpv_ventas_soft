@@ -1,6 +1,71 @@
 # UPDATES.md
 
-## [2025-11-28] - Backend Completo Implementado
+## [v1.0.2] - 2025-12-02 - Migración de Datos Legacy
+
+### Migración de Base de Datos
+*   ✅ Script de migración desde MySQL (tiendaNew.sql) a PostgreSQL (Neon)
+*   ✅ Migración de 6 empleados (tabla trabajadores → empleados)
+*   ✅ Migración de 420 clientes con relación empleado-cliente
+*   ✅ Campo `direccion` añadido a la entidad Cliente (opcional)
+*   ✅ Mapeo de campos:
+    - `cod_user` → `id_empleado`
+    - `name` → `nombre` (empleados)
+    - `cod_cliente-cod_user` → `num_cliente` (clave única)
+    - `nombre_c + apellidos_c` → `nombre` (clientes)
+    - `telefono_c` → `telefono`
+    - `direccion_c` → `direccion`
+    - `cod_user` → `empleado_id` (FK)
+*   ✅ Campos omitidos: `debe`, `pass`, `email_c`, `DNI_NIF`, `fecha_creación`, `ult_fecha_pago`
+
+### Distribución de Clientes por Empleado
+- David: 73 clientes
+- fe: 53 clientes
+- Bego: 147 clientes
+- Jimenez: 37 clientes
+- Yaiza: 58 clientes
+- BegoJi: 52 clientes
+
+---
+
+## [v1.0.1] - 2025-12-02 - Frontend Completo + Tests
+
+### Frontend React
+*   ✅ Dashboard mejorado con gráficos interactivos (Recharts)
+    - Tarjetas de estadísticas (Ventas, Pagos, Devoluciones, Balance)
+    - Gráfico de barras de transacciones
+    - Gráfico circular de distribución de montos
+    - Panel de Top Deudores
+    - Panel de Artículos con Stock Bajo
+    - Panel de Compras Recientes
+*   ✅ Módulo de Clientes (CRUD completo + búsqueda + balance)
+*   ✅ Módulo de Artículos (CRUD + búsqueda + gestión de stock)
+*   ✅ Módulo de Compras (con artículos y modo "VARIOS")
+*   ✅ Módulo de Empleados (CRUD completo)
+*   ✅ Módulo de Pagos (registro y listado)
+*   ✅ Módulo de Devoluciones (registro y listado)
+*   ✅ Módulo de Cierre de Mes (solo admin)
+*   ✅ Footer con versión y copyright
+
+### Tests Unitarios (133 tests)
+*   ✅ AppController (2 tests)
+*   ✅ ClientesService + Controller (13 tests)
+*   ✅ ArticulosService + Controller (19 tests)
+*   ✅ ComprasService + Controller (15 tests)
+*   ✅ EmpleadosService + Controller (16 tests)
+*   ✅ PagosService + Controller (12 tests)
+*   ✅ DevolucionesService + Controller (12 tests)
+*   ✅ CierreMesService + Controller (12 tests)
+*   ✅ BackupService + Controller (10 tests)
+
+### Tests E2E
+*   ✅ Clientes E2E
+*   ✅ Artículos E2E
+*   ✅ Compras E2E
+*   ✅ Empleados E2E
+
+---
+
+## [v1.0.0] - 2025-11-28 - Backend Completo Implementado
 *   ✅ Configuración de dependencias (TypeORM, PostgreSQL, Passport, JWT, class-validator)
 *   ✅ Estructura de base de datos con 9 entidades
 *   ✅ Sistema de autenticación con Google OAuth 2.0
@@ -18,6 +83,8 @@
 *   ✅ Guards de seguridad (JWT + Roles)
 *   ✅ Documentación actualizada (GEMINI.md, README.md)
 
-## [Date] - Project Initialization
+---
+
+## [v0.0.1] - Project Initialization
 *   Created documentation files.
 *   Initialized NestJS project.

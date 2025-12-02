@@ -27,6 +27,9 @@ export class Cliente {
   @Column({ nullable: true })
   telefono: string;
 
+  @Column({ nullable: true })
+  direccion: string;
+
   @ManyToOne(() => Empleado, (empleado) => empleado.clientes, {
     onDelete: 'SET NULL',
   })

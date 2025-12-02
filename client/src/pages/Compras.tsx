@@ -3,10 +3,18 @@ import { Plus, X, Trash2, Eye } from 'lucide-react';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
 
+interface Empleado {
+  id: string;
+  id_empleado: string;
+  nombre: string;
+}
+
 interface Cliente {
   id: string;
   num_cliente: string;
   nombre: string;
+  empleado_id: string;
+  empleado?: Empleado;
 }
 
 interface Articulo {
@@ -37,8 +45,10 @@ interface Compra {
 export default function Compras() {
   const [compras, setCompras] = useState<Compra[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [articulos, setArticulos] = useState<Articulo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterEmpleadoId, setFilterEmpleadoId] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedCompra, setSelectedCompra] = useState<Compra | null>(null);
@@ -55,6 +65,7 @@ export default function Compras() {
   useEffect(() => {
     fetchCompras();
     fetchClientes();
+    fetchEmpleados();
     fetchArticulos();
   }, []);
 
@@ -77,6 +88,15 @@ export default function Compras() {
       setClientes(response.data);
     } catch (error) {
       console.error('Error al cargar clientes:', error);
+    }
+  };
+
+  const fetchEmpleados = async () => {
+    try {
+      const response = await api.get('/empleados');
+      setEmpleados(response.data);
+    } catch (error) {
+      console.error('Error al cargar empleados:', error);
     }
   };
 
@@ -181,24 +201,58 @@ export default function Compras() {
     }).format(amount);
   };
 
+  // Filtrar compras por empleado
+  const filteredCompras = compras.filter((compra) => {
+    if (!filterEmpleadoId) return true;
+    const cliente = clientes.find(c => c.id === compra.cliente.id);
+    return cliente?.empleado_id === filterEmpleadoId;
+  });
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Compras</h1>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
         >
           <Plus size={20} />
           Nueva Compra
         </button>
       </div>
 
+      {/* Filtro por Empleado */}
+      <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-medium text-gray-700">Filtrar por empleado:</label>
+          <select
+            value={filterEmpleadoId}
+            onChange={(e) => setFilterEmpleadoId(e.target.value)}
+            className="flex-1 max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          >
+            <option value="">Todos los empleados</option>
+            {empleados.map((emp) => (
+              <option key={emp.id} value={emp.id}>
+                {emp.nombre}
+              </option>
+            ))}
+          </select>
+          {filterEmpleadoId && (
+            <button
+              onClick={() => setFilterEmpleadoId('')}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Table */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         {loading ? (
           <div className="p-8 text-center text-gray-500">Cargando...</div>
-        ) : compras.length === 0 ? (
+        ) : filteredCompras.length === 0 ? (
           <div className="p-8 text-center text-gray-500">No hay compras registradas</div>
         ) : (
           <table className="w-full">
@@ -225,7 +279,7 @@ export default function Compras() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {compras.map((compra) => (
+              {filteredCompras.map((compra) => (
                 <tr key={compra.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(compra.created_at).toLocaleDateString('es-ES')}
@@ -235,7 +289,7 @@ export default function Compras() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      compra.es_varios ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                      compra.es_varios ? 'bg-purple-100 text-purple-800' : 'bg-primary-100 text-primary-800'
                     }`}>
                       {compra.es_varios ? 'VARIOS' : 'Artículos'}
                     </span>
@@ -249,7 +303,7 @@ export default function Compras() {
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
                       onClick={() => viewDetails(compra)}
-                      className="text-blue-600 hover:text-blue-900"
+                      className="text-primary-600 hover:text-primary-900"
                     >
                       <Eye size={18} />
                     </button>
@@ -280,7 +334,7 @@ export default function Compras() {
                   required
                   value={formData.cliente_id}
                   onChange={(e) => setFormData({ ...formData, cliente_id: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
                   <option value="">Seleccione un cliente</option>
                   {clientes.map((cliente) => (
@@ -297,7 +351,7 @@ export default function Compras() {
                     type="checkbox"
                     checked={esVarios}
                     onChange={(e) => setEsVarios(e.target.checked)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                   />
                   <span className="text-sm font-medium text-gray-700">Compra de "VARIOS" (sin artículos específicos)</span>
                 </label>
@@ -315,7 +369,7 @@ export default function Compras() {
                       required
                       value={formData.total}
                       onChange={(e) => setFormData({ ...formData, total: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="0.00"
                     />
                   </div>
@@ -326,7 +380,7 @@ export default function Compras() {
                     <textarea
                       value={formData.descripcion}
                       onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       rows={3}
                       placeholder="Descripción de la compra"
                     />
@@ -340,7 +394,7 @@ export default function Compras() {
                       <select
                         value={articuloSeleccionado}
                         onChange={(e) => setArticuloSeleccionado(e.target.value)}
-                        className="col-span-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="col-span-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       >
                         <option value="">Seleccione un artículo</option>
                         {articulos.filter(a => a.cantidad > 0).map((articulo) => (
@@ -354,7 +408,7 @@ export default function Compras() {
                         min="1"
                         value={cantidadArticulo}
                         onChange={(e) => setCantidadArticulo(e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         placeholder="Cant."
                       />
                     </div>
@@ -427,7 +481,7 @@ export default function Compras() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
                 >
                   Registrar Compra
                 </button>

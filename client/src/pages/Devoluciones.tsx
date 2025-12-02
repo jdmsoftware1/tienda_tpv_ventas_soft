@@ -3,11 +3,19 @@ import { Plus, RotateCcw, X } from 'lucide-react';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
 
+interface Empleado {
+  id: string;
+  id_empleado: string;
+  nombre: string;
+}
+
 interface Cliente {
   id: string;
   num_cliente: string;
   nombre: string;
   balance: number;
+  empleado_id: string;
+  empleado?: Empleado;
 }
 
 interface Devolucion {
@@ -21,7 +29,9 @@ interface Devolucion {
 export default function Devoluciones() {
   const [devoluciones, setDevoluciones] = useState<Devolucion[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterEmpleadoId, setFilterEmpleadoId] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     cliente_id: '',
@@ -32,6 +42,7 @@ export default function Devoluciones() {
   useEffect(() => {
     fetchDevoluciones();
     fetchClientes();
+    fetchEmpleados();
   }, []);
 
   const fetchDevoluciones = async () => {
@@ -53,6 +64,15 @@ export default function Devoluciones() {
       setClientes(response.data);
     } catch (error) {
       console.error('Error al cargar clientes:', error);
+    }
+  };
+
+  const fetchEmpleados = async () => {
+    try {
+      const response = await api.get('/empleados');
+      setEmpleados(response.data);
+    } catch (error) {
+      console.error('Error al cargar empleados:', error);
     }
   };
 
@@ -88,24 +108,58 @@ export default function Devoluciones() {
     }).format(amount);
   };
 
+  // Filtrar devoluciones por empleado
+  const filteredDevoluciones = devoluciones.filter((devolucion) => {
+    if (!filterEmpleadoId) return true;
+    const cliente = clientes.find(c => c.id === devolucion.cliente.id);
+    return cliente?.empleado_id === filterEmpleadoId;
+  });
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Devoluciones</h1>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
         >
           <Plus size={20} />
           Registrar Devolución
         </button>
       </div>
 
+      {/* Filtro por Empleado */}
+      <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-medium text-gray-700">Filtrar por empleado:</label>
+          <select
+            value={filterEmpleadoId}
+            onChange={(e) => setFilterEmpleadoId(e.target.value)}
+            className="flex-1 max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          >
+            <option value="">Todos los empleados</option>
+            {empleados.map((emp) => (
+              <option key={emp.id} value={emp.id}>
+                {emp.nombre}
+              </option>
+            ))}
+          </select>
+          {filterEmpleadoId && (
+            <button
+              onClick={() => setFilterEmpleadoId('')}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Table */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         {loading ? (
           <div className="p-8 text-center text-gray-500">Cargando...</div>
-        ) : devoluciones.length === 0 ? (
+        ) : filteredDevoluciones.length === 0 ? (
           <div className="p-8 text-center text-gray-500">No hay devoluciones registradas</div>
         ) : (
           <table className="w-full">
@@ -121,7 +175,7 @@ export default function Devoluciones() {
                   Nº Cliente
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Monto
+                  Cantidad
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Descripción
@@ -132,7 +186,7 @@ export default function Devoluciones() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {devoluciones.map((devolucion) => (
+              {filteredDevoluciones.map((devolucion) => (
                 <tr key={devolucion.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(devolucion.created_at).toLocaleString('es-ES')}
@@ -187,7 +241,7 @@ export default function Devoluciones() {
                   required
                   value={formData.cliente_id}
                   onChange={(e) => setFormData({ ...formData, cliente_id: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
                   <option value="">Seleccione un cliente</option>
                   {clientes.map((cliente) => (
@@ -200,7 +254,7 @@ export default function Devoluciones() {
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Monto de la Devolución *
+                  Cantidad *
                 </label>
                 <div className="relative">
                   <RotateCcw className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -211,7 +265,7 @@ export default function Devoluciones() {
                     min="0.01"
                     value={formData.monto}
                     onChange={(e) => setFormData({ ...formData, monto: e.target.value })}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     placeholder="0.00"
                   />
                 </div>
@@ -227,7 +281,7 @@ export default function Devoluciones() {
                 <textarea
                   value={formData.descripcion}
                   onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   rows={3}
                   placeholder="Motivo de la devolución (opcional)"
                 />
@@ -243,7 +297,7 @@ export default function Devoluciones() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
                 >
                   Registrar
                 </button>

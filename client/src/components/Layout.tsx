@@ -51,7 +51,7 @@ export default function Layout() {
           {/* Header */}
           <div className="flex h-16 items-center justify-between px-4 border-b">
             {sidebarOpen && (
-              <h1 className="text-xl font-bold text-gray-900">Tienda POS</h1>
+              <h1 className="text-xl font-bold text-primary-700">Ángel e Hijas</h1>
             )}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -76,8 +76,8 @@ export default function Layout() {
                   to={item.href}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-blue-50 text-blue-600'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-primary-50 text-primary-600'
+                      : 'text-gray-700 hover:bg-primary-50 hover:text-primary-600'
                   }`}
                   title={!sidebarOpen ? item.name : undefined}
                 >
@@ -91,7 +91,7 @@ export default function Layout() {
           {/* User section */}
           <div className="border-t p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white flex-shrink-0">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-white flex-shrink-0">
                 {user?.nombre.charAt(0).toUpperCase()}
               </div>
               {sidebarOpen && (
@@ -119,13 +119,28 @@ export default function Layout() {
 
       {/* Main content */}
       <div
-        className={`transition-all duration-300 ${
+        className={`transition-all duration-300 flex flex-col min-h-screen ${
           sidebarOpen ? 'ml-64' : 'ml-20'
         }`}
       >
-        <main className="min-h-screen p-6">
+        <main className="flex-1 p-6">
           <Outlet />
         </main>
+        
+        {/* Footer */}
+        <footer className="bg-white border-t border-gray-200 py-4 px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between text-sm text-gray-500">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-gray-700">Decoraciones Ángel e Hijas</span>
+              <span className="px-2 py-0.5 bg-primary-100 text-primary-700 rounded-full text-xs font-medium">
+                v1.0.2
+              </span>
+            </div>
+            <div className="mt-2 md:mt-0">
+              © {new Date().getFullYear()} <span className="font-medium text-gray-700">JDMSoftware</span>. Todos los derechos reservados.
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );

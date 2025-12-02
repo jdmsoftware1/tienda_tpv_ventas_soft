@@ -13,6 +13,7 @@ describe('ClientesController', () => {
     num_cliente: 'CLI001',
     nombre: 'Juan Pérez',
     telefono: '123456789',
+    direccion: 'Calle Principal 123',
     empleado_id: 'emp1',
     balance: 0,
     created_at: new Date(),
@@ -57,6 +58,7 @@ describe('ClientesController', () => {
         num_cliente: 'CLI001',
         nombre: 'Juan Pérez',
         telefono: '123456789',
+        direccion: 'Calle Principal 123',
         empleado_id: 'emp1',
       };
 

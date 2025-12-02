@@ -138,7 +138,7 @@ export default function Articulos() {
         <h1 className="text-3xl font-bold text-gray-900">Artículos</h1>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
         >
           <Plus size={20} />
           Nuevo Artículo
@@ -156,12 +156,12 @@ export default function Articulos() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
           </div>
           <button
             onClick={handleSearch}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
           >
             Buscar
           </button>
@@ -247,7 +247,7 @@ export default function Articulos() {
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
                       onClick={() => handleEdit(articulo)}
-                      className="text-blue-600 hover:text-blue-900 mr-4"
+                      className="text-primary-600 hover:text-primary-900 mr-4"
                     >
                       <Edit2 size={18} />
                     </button>
@@ -287,7 +287,7 @@ export default function Articulos() {
                   required
                   value={formData.codigo_barras}
                   onChange={(e) => setFormData({ ...formData, codigo_barras: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="Ej: 1234567890123"
                 />
               </div>
@@ -300,7 +300,7 @@ export default function Articulos() {
                   required
                   value={formData.nombre}
                   onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="Nombre del artículo"
                 />
               </div>
@@ -315,7 +315,7 @@ export default function Articulos() {
                     required
                     value={formData.precio_compra}
                     onChange={(e) => setFormData({ ...formData, precio_compra: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     placeholder="0.00"
                   />
                 </div>
@@ -329,7 +329,7 @@ export default function Articulos() {
                     required
                     value={formData.precio_venta}
                     onChange={(e) => setFormData({ ...formData, precio_venta: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     placeholder="0.00"
                   />
                 </div>
@@ -343,7 +343,7 @@ export default function Articulos() {
                   required
                   value={formData.cantidad}
                   onChange={(e) => setFormData({ ...formData, cantidad: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="0"
                 />
               </div>
@@ -357,7 +357,7 @@ export default function Articulos() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
                 >
                   {editingArticulo ? 'Actualizar' : 'Crear'}
                 </button>

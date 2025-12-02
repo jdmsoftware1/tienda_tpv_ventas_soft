@@ -1,0 +1,36 @@
+te explico, necesito un programa el cual tenga lo siguiente:
+Clientes, los datos del cliente son muy breves, telefono, num de cliente(Se introduce manualmente no es automatico), nombre del cliente y lo que debe, los clientes pueden deber dinero a la empresa ellos van haciendo compras, y luego pueden ir pagando cuantias mes a mes que se le iran descontando.
+Necesito que registrar compras o pagos en el cliente sea extremadamente sencillo.
+Necesito empleados, los clientes van asociados a empleados. los empleados solo tienen id_enmpleado y nombre, no tendrán nada más.
+- Pagos con sus correspondientes columnas(Se breve no pongas muchas cosas)
+- Compras, en las cuales se le puede asociar un articulo o no, solo queremos registrar una compra sin asociar un articulo si no poner VARIOS y será de otra cosa que no hay control mde stock.
+- Articulos los cuales tienen su codigo de barras que me permitiras leer con el lector, precio compra, precio venta y cantidad.
+-Devoluciones las cuales ya si se hace una devolución asociada al cliente ya se le descontará automaticamente de lo que debe.
+- Repito debe ser sencillo el programa, la dashboard me la pones a la izquierda y debe de ser con iconos sencillos y ocultarse facilmente, deben de jhaber buscadores sencillos por codigo o por nombre.
+- En cada cliente se tendran tres botones rapidos, "pago", "compra", "devolucion""editar cliente" estaría bien que fuera con iconos.
+- Los clientes probablemente te los importe de una BD de clientes, si quieres no registres lo que el cliente debe, si no que sea la suma de las ventas - pagos y tambien tenga en cuenta las devoluciones, lo que tu veas más practico y eficiente.
+
+- El programa debe tener cierre de mes, se cerrara cuando se pulse un boton, y habrán un total de ventas, de pagos y devoluciones por cierres de mes, el cual se podrá filtrar.
+
+- Estría bien alguna estadistica de como progresan las ventas y pagos del ultimo mes.
+
+- A el cliente le gusta mucho como un excel si podemos poner la parte de Analitycs, como un excel que se vea por cierres de mes, que suele ser por mes natural pero aveces puede ser del rango del 27 de un mes al 27 e otro o del 28 de un mes al 28 de otro. es decir dejame yo cerrar el mes cuando quiera.
+
+- Repito debe ser bonito, con alguna animación pero SOBRETODO MUY SENCILLO.
+
+- Hazlo con nestjs, para tener el back y el front integrado, y luego lo subiremos a render que es serverless.
+
+- Más adelante te hare migrar a la BD un csv que vendrá de una BD anterior.
+
+Dejame una BD que sea escalable. y por favor necesito que sea seguro ya que estará publico en render.
+
+Autenticame con Oauth de Google al cual yo tendré en el .env unos AUTHORIRED_MAILS los cuales serán los unicos con acceso, despues el admin puede ver toda la parte del total y de Analitycs por cada empleado.
+
+Y el resto solo puede acceder a pagos, compras, devoluciones, articulos y clientes. pero todos los totales solo el admin.
+
+Hazme una arquitectura sencilla pero que sea escalable y la BD que la pueda exportar y nunca perder, incluso que se pueda hacer un backup de la BD una vez estes logeado para ir guardandio backups manualmente.
+
+- Siempre necesito estos archivos:
+UPDATES.md -> Iran las actualizaciones.
+FIX.md-> Iran los arregos
+GEMINI.md -> Ira todo esto que te estoy poniendo y el contexto completo del proyecto por si en algun momento se pierde el chat que la IA tenga todo lo necesario para endender requisitos e implementaciones del proyecto en el cual se guardara que cada vez que re diga "Documenta" actualizarás esos tres archivos.
