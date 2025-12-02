@@ -11,8 +11,10 @@ import {
   AlertTriangle,
   Calendar,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  X
 } from 'lucide-react';
+import DateFilters from '../components/DateFilters';
 import {
   BarChart,
   Bar,
@@ -59,33 +61,77 @@ interface Compra {
   id: string;
   total: number;
   created_at: string;
-  cliente?: { nombre: string };
+  cliente?: { id: string; nombre: string; empleado_id?: string };
+}
+
+interface Empleado {
+  id: string;
+  id_empleado: string;
+  nombre: string;
+}
+
+interface Pago {
+  id: string;
+  monto: number;
+  created_at: string;
+  cliente?: { id: string; empleado_id?: string };
+}
+
+interface Devolucion {
+  id: string;
+  monto: number;
+  created_at: string;
+  cliente?: { id: string; empleado_id?: string };
 }
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
 export default function Dashboard() {
   const { user } = useAuthStore();
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [, setStats] = useState<Stats | null>(null);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [articulos, setArticulos] = useState<Articulo[]>([]);
-  const [comprasRecientes, setComprasRecientes] = useState<Compra[]>([]);
+  const [compras, setCompras] = useState<Compra[]>([]);
+  const [pagos, setPagos] = useState<Pago[]>([]);
+  const [devoluciones, setDevoluciones] = useState<Devolucion[]>([]);
+  const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Filtros
+  const [filterType, setFilterType] = useState('mes');
+  const [fechaInicio, setFechaInicio] = useState('');
+  const [fechaFin, setFechaFin] = useState('');
+  const [filterEmpleadoId, setFilterEmpleadoId] = useState('');
+
+  // Inicializar filtro de mes actual
+  useEffect(() => {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    setFechaInicio(monthStart.toISOString().split('T')[0]);
+    setFechaFin(monthEnd.toISOString().split('T')[0]);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [statsRes, clientesRes, articulosRes, comprasRes] = await Promise.all([
+        const [statsRes, clientesRes, articulosRes, comprasRes, pagosRes, devolucionesRes, empleadosRes] = await Promise.all([
           api.get('/cierre-mes/current-month'),
           api.get('/clientes'),
           api.get('/articulos'),
           api.get('/compras'),
+          api.get('/pagos'),
+          api.get('/devoluciones'),
+          api.get('/empleados'),
         ]);
         
         setStats(statsRes.data);
         setClientes(clientesRes.data);
         setArticulos(articulosRes.data);
-        setComprasRecientes(comprasRes.data.slice(0, 5));
+        setCompras(comprasRes.data);
+        setPagos(pagosRes.data);
+        setDevoluciones(devolucionesRes.data);
+        setEmpleados(empleadosRes.data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -95,6 +141,59 @@ export default function Dashboard() {
     
     fetchData();
   }, []);
+
+  // Función para filtrar por fecha
+  const filterByDate = <T extends { created_at: string }>(items: T[]): T[] => {
+    if (!fechaInicio && !fechaFin) return items;
+    
+    return items.filter(item => {
+      const itemDate = new Date(item.created_at);
+      itemDate.setHours(0, 0, 0, 0);
+      
+      if (fechaInicio) {
+        const inicio = new Date(fechaInicio);
+        inicio.setHours(0, 0, 0, 0);
+        if (itemDate < inicio) return false;
+      }
+      
+      if (fechaFin) {
+        const fin = new Date(fechaFin);
+        fin.setHours(23, 59, 59, 999);
+        if (itemDate > fin) return false;
+      }
+      
+      return true;
+    });
+  };
+
+  // Función para filtrar por empleado
+  const filterByEmpleado = <T extends { cliente?: { empleado_id?: string } }>(items: T[]): T[] => {
+    if (!filterEmpleadoId) return items;
+    return items.filter(item => item.cliente?.empleado_id === filterEmpleadoId);
+  };
+
+  // Limpiar filtros
+  const clearDateFilters = () => {
+    setFilterType('');
+    setFechaInicio('');
+    setFechaFin('');
+  };
+
+  // Datos filtrados
+  const filteredCompras = filterByEmpleado(filterByDate(compras));
+  const filteredPagos = filterByEmpleado(filterByDate(pagos));
+  const filteredDevoluciones = filterByEmpleado(filterByDate(devoluciones));
+  const comprasRecientes = filteredCompras.slice(0, 5);
+
+  // Calcular estadísticas filtradas
+  const filteredStats = {
+    total_ventas: filteredCompras.reduce((sum, c) => sum + Number(c.total), 0),
+    total_pagos: filteredPagos.reduce((sum, p) => sum + Number(p.monto), 0),
+    total_devoluciones: filteredDevoluciones.reduce((sum, d) => sum + Number(d.monto), 0),
+    cantidad_ventas: filteredCompras.length,
+    cantidad_pagos: filteredPagos.length,
+    cantidad_devoluciones: filteredDevoluciones.length,
+  };
 
   // Calcular balance de clientes
   const clientesConBalance = clientes.map(cliente => {
@@ -121,21 +220,19 @@ export default function Dashboard() {
 
   // Datos para gráfico de barras (distribución de transacciones)
   const transaccionesData = [
-    { name: 'Ventas', valor: stats?.cantidad_ventas || 0, monto: stats?.total_ventas || 0 },
-    { name: 'Pagos', valor: stats?.cantidad_pagos || 0, monto: stats?.total_pagos || 0 },
-    { name: 'Devoluciones', valor: stats?.cantidad_devoluciones || 0, monto: stats?.total_devoluciones || 0 },
+    { name: 'Ventas', valor: filteredStats.cantidad_ventas, monto: filteredStats.total_ventas },
+    { name: 'Pagos', valor: filteredStats.cantidad_pagos, monto: filteredStats.total_pagos },
+    { name: 'Devoluciones', valor: filteredStats.cantidad_devoluciones, monto: filteredStats.total_devoluciones },
   ];
 
   // Datos para gráfico circular
   const pieData = [
-    { name: 'Ventas', value: stats?.total_ventas || 0 },
-    { name: 'Pagos', value: stats?.total_pagos || 0 },
-    { name: 'Devoluciones', value: stats?.total_devoluciones || 0 },
+    { name: 'Ventas', value: filteredStats.total_ventas },
+    { name: 'Pagos', value: filteredStats.total_pagos },
+    { name: 'Devoluciones', value: filteredStats.total_devoluciones },
   ].filter(d => d.value > 0);
 
-  const balance = stats 
-    ? stats.total_ventas - stats.total_pagos - stats.total_devoluciones 
-    : 0;
+  const balance = filteredStats.total_ventas - filteredStats.total_pagos - filteredStats.total_devoluciones;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-ES', {
@@ -146,25 +243,25 @@ export default function Dashboard() {
 
   const cards = [
     {
-      title: 'Ventas del Mes',
-      value: formatCurrency(stats?.total_ventas || 0),
-      count: stats?.cantidad_ventas || 0,
+      title: 'Ventas',
+      value: formatCurrency(filteredStats.total_ventas),
+      count: filteredStats.cantidad_ventas,
       icon: ShoppingCart,
       color: 'bg-primary-500',
       trend: 'up',
     },
     {
       title: 'Pagos Recibidos',
-      value: formatCurrency(stats?.total_pagos || 0),
-      count: stats?.cantidad_pagos || 0,
+      value: formatCurrency(filteredStats.total_pagos),
+      count: filteredStats.cantidad_pagos,
       icon: DollarSign,
       color: 'bg-green-500',
       trend: 'up',
     },
     {
       title: 'Devoluciones',
-      value: formatCurrency(stats?.total_devoluciones || 0),
-      count: stats?.cantidad_devoluciones || 0,
+      value: formatCurrency(filteredStats.total_devoluciones),
+      count: filteredStats.cantidad_devoluciones,
       icon: Package,
       color: 'bg-orange-500',
       trend: 'down',
@@ -201,6 +298,49 @@ export default function Dashboard() {
           <Calendar size={16} />
           <span>{format(new Date(), "EEEE, d 'de' MMMM yyyy", { locale: es })}</span>
         </div>
+      </div>
+
+      {/* Filtros */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 space-y-4">
+        <DateFilters
+          filterType={filterType}
+          setFilterType={setFilterType}
+          fechaInicio={fechaInicio}
+          setFechaInicio={setFechaInicio}
+          fechaFin={fechaFin}
+          setFechaFin={setFechaFin}
+          onClear={clearDateFilters}
+        />
+        
+        <div className="flex items-center gap-4 pt-2 border-t border-gray-100">
+          <label className="text-sm font-medium text-gray-700">Empleado:</label>
+          <select
+            value={filterEmpleadoId}
+            onChange={(e) => setFilterEmpleadoId(e.target.value)}
+            className="flex-1 max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          >
+            <option value="">Todos los empleados</option>
+            {empleados.map((emp) => (
+              <option key={emp.id} value={emp.id}>
+                {emp.nombre}
+              </option>
+            ))}
+          </select>
+          {filterEmpleadoId && (
+            <button
+              onClick={() => setFilterEmpleadoId('')}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+
+        {(filterEmpleadoId || fechaInicio || fechaFin) && (
+          <div className="text-sm text-gray-600 pt-2 border-t border-gray-100">
+            <strong>{filteredCompras.length}</strong> compras, <strong>{filteredPagos.length}</strong> pagos, <strong>{filteredDevoluciones.length}</strong> devoluciones
+          </div>
+        )}
       </div>
 
       {/* Stats Cards */}

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Plus, X, Trash2, Eye, Printer, Barcode } from 'lucide-react';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
+import DateFilters from '../components/DateFilters';
 
 interface Empleado {
   id: string;
@@ -56,6 +57,9 @@ export default function Compras() {
   const [articulos, setArticulos] = useState<Articulo[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterEmpleadoId, setFilterEmpleadoId] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const [fechaInicio, setFechaInicio] = useState('');
+  const [fechaFin, setFechaFin] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showTicketModal, setShowTicketModal] = useState(false);
@@ -219,8 +223,8 @@ export default function Compras() {
         descripcion: desc > 0 ? `Descuento: ${formatCurrency(desc)}` : undefined,
         articulos: carrito.map(item => ({
           articulo_id: item.articulo_id,
-          cantidad: item.cantidad,
-          precio_unitario: item.precio_unitario,
+          cantidad: Number(item.cantidad),
+          precio_unitario: Number(item.precio_unitario),
         })),
       };
       
@@ -359,11 +363,40 @@ export default function Compras() {
     });
   };
 
-  // Filtrar compras por empleado
+  // Limpiar filtros de fecha
+  const clearDateFilters = () => {
+    setFilterType('');
+    setFechaInicio('');
+    setFechaFin('');
+  };
+
+  // Filtrar compras por empleado y fecha
   const filteredCompras = compras.filter((compra) => {
-    if (!filterEmpleadoId) return true;
-    const cliente = clientes.find(c => c.id === compra.cliente.id);
-    return cliente?.empleado_id === filterEmpleadoId;
+    // Filtro por empleado
+    if (filterEmpleadoId) {
+      const cliente = clientes.find(c => c.id === compra.cliente.id);
+      if (cliente?.empleado_id !== filterEmpleadoId) return false;
+    }
+    
+    // Filtro por fecha
+    if (fechaInicio || fechaFin) {
+      const compraDate = new Date(compra.created_at);
+      compraDate.setHours(0, 0, 0, 0);
+      
+      if (fechaInicio) {
+        const inicio = new Date(fechaInicio);
+        inicio.setHours(0, 0, 0, 0);
+        if (compraDate < inicio) return false;
+      }
+      
+      if (fechaFin) {
+        const fin = new Date(fechaFin);
+        fin.setHours(23, 59, 59, 999);
+        if (compraDate > fin) return false;
+      }
+    }
+    
+    return true;
   });
 
   const selectedCliente = clientes.find(c => c.id === clienteId);
@@ -381,10 +414,22 @@ export default function Compras() {
         </button>
       </div>
 
-      {/* Filtro por Empleado */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-        <div className="flex items-center gap-4">
-          <label className="text-sm font-medium text-gray-700">Filtrar por empleado:</label>
+      {/* Filtros */}
+      <div className="bg-white rounded-lg shadow-md p-4 mb-4 space-y-4">
+        {/* Filtro por Fecha */}
+        <DateFilters
+          filterType={filterType}
+          setFilterType={setFilterType}
+          fechaInicio={fechaInicio}
+          setFechaInicio={setFechaInicio}
+          fechaFin={fechaFin}
+          setFechaFin={setFechaFin}
+          onClear={clearDateFilters}
+        />
+        
+        {/* Filtro por Empleado */}
+        <div className="flex items-center gap-4 pt-2 border-t border-gray-100">
+          <label className="text-sm font-medium text-gray-700">Empleado:</label>
           <select
             value={filterEmpleadoId}
             onChange={(e) => setFilterEmpleadoId(e.target.value)}
@@ -406,6 +451,13 @@ export default function Compras() {
             </button>
           )}
         </div>
+
+        {/* Resumen de filtros activos */}
+        {(filterEmpleadoId || fechaInicio || fechaFin) && (
+          <div className="text-sm text-gray-600 pt-2 border-t border-gray-100">
+            Mostrando <strong>{filteredCompras.length}</strong> de <strong>{compras.length}</strong> compras
+          </div>
+        )}
       </div>
 
       {/* Table */}

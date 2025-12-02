@@ -292,8 +292,8 @@ export default function Clientes() {
         descripcion: desc > 0 ? `Descuento: ${formatCurrency(desc)}` : undefined,
         articulos: carrito.map(item => ({
           articulo_id: item.articulo_id,
-          cantidad: item.cantidad,
-          precio_unitario: item.precio_unitario,
+          cantidad: Number(item.cantidad),
+          precio_unitario: Number(item.precio_unitario),
         })),
       });
       toast.success('Compra registrada correctamente');

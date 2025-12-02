@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, DollarSign, X } from 'lucide-react';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
+import DateFilters from '../components/DateFilters';
 
 interface Empleado {
   id: string;
@@ -31,6 +32,9 @@ export default function Pagos() {
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterEmpleadoId, setFilterEmpleadoId] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const [fechaInicio, setFechaInicio] = useState('');
+  const [fechaFin, setFechaFin] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     cliente_id: '',
@@ -107,11 +111,38 @@ export default function Pagos() {
 
   const selectedCliente = clientes.find(c => c.id === formData.cliente_id);
 
-  // Filtrar pagos por empleado
+  // Limpiar filtros de fecha
+  const clearDateFilters = () => {
+    setFilterType('');
+    setFechaInicio('');
+    setFechaFin('');
+  };
+
+  // Filtrar pagos por empleado y fecha
   const filteredPagos = pagos.filter((pago) => {
-    if (!filterEmpleadoId) return true;
-    const cliente = clientes.find(c => c.id === pago.cliente.id);
-    return cliente?.empleado_id === filterEmpleadoId;
+    if (filterEmpleadoId) {
+      const cliente = clientes.find(c => c.id === pago.cliente.id);
+      if (cliente?.empleado_id !== filterEmpleadoId) return false;
+    }
+    
+    if (fechaInicio || fechaFin) {
+      const pagoDate = new Date(pago.created_at);
+      pagoDate.setHours(0, 0, 0, 0);
+      
+      if (fechaInicio) {
+        const inicio = new Date(fechaInicio);
+        inicio.setHours(0, 0, 0, 0);
+        if (pagoDate < inicio) return false;
+      }
+      
+      if (fechaFin) {
+        const fin = new Date(fechaFin);
+        fin.setHours(23, 59, 59, 999);
+        if (pagoDate > fin) return false;
+      }
+    }
+    
+    return true;
   });
 
   return (
@@ -127,10 +158,20 @@ export default function Pagos() {
         </button>
       </div>
 
-      {/* Filtro por Empleado */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-        <div className="flex items-center gap-4">
-          <label className="text-sm font-medium text-gray-700">Filtrar por empleado:</label>
+      {/* Filtros */}
+      <div className="bg-white rounded-lg shadow-md p-4 mb-4 space-y-4">
+        <DateFilters
+          filterType={filterType}
+          setFilterType={setFilterType}
+          fechaInicio={fechaInicio}
+          setFechaInicio={setFechaInicio}
+          fechaFin={fechaFin}
+          setFechaFin={setFechaFin}
+          onClear={clearDateFilters}
+        />
+        
+        <div className="flex items-center gap-4 pt-2 border-t border-gray-100">
+          <label className="text-sm font-medium text-gray-700">Empleado:</label>
           <select
             value={filterEmpleadoId}
             onChange={(e) => setFilterEmpleadoId(e.target.value)}
@@ -152,6 +193,12 @@ export default function Pagos() {
             </button>
           )}
         </div>
+
+        {(filterEmpleadoId || fechaInicio || fechaFin) && (
+          <div className="text-sm text-gray-600 pt-2 border-t border-gray-100">
+            Mostrando <strong>{filteredPagos.length}</strong> de <strong>{pagos.length}</strong> pagos
+          </div>
+        )}
       </div>
 
       {/* Table */}
