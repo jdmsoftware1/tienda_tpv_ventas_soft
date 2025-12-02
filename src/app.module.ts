@@ -27,7 +27,7 @@ import { BackupModule } from './backup/backup.module';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/',
-      exclude: ['/api/(.*)'],
+      exclude: ['/api/(.*)', '/auth/(.*)', '/empleados/(.*)', '/clientes/(.*)', '/articulos/(.*)', '/compras/(.*)', '/pagos/(.*)', '/devoluciones/(.*)', '/cierre-mes/(.*)', '/backup/(.*)'],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
