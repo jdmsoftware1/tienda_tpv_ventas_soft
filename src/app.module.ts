@@ -24,11 +24,6 @@ import { BackupModule } from './backup/backup.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
-      serveRoot: '/',
-      exclude: ['/api/(.*)', '/auth/(.*)', '/empleados/(.*)', '/clientes/(.*)', '/articulos/(.*)', '/compras/(.*)', '/pagos/(.*)', '/devoluciones/(.*)', '/cierre-mes/(.*)', '/backup/(.*)'],
-    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: getDatabaseConfig,
@@ -43,6 +38,10 @@ import { BackupModule } from './backup/backup.module';
     DevolucionesModule,
     CierreMesModule,
     BackupModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      serveRoot: '/',
+    }),
   ],
   controllers: [AppController],
   providers: [

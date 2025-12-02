@@ -39,7 +39,7 @@ export default function Login() {
   const handleGoogleLogin = () => {
     // Usar la URL actual para soportar tanto desarrollo como producción
     const baseUrl = window.location.origin;
-    window.location.href = `${baseUrl}/auth/google`;
+    window.location.href = `${baseUrl}/api/auth/google`;
   };
 
   return (
