@@ -18,7 +18,8 @@ export class CreateCompraDto {
   cliente_id: string;
 
   @IsNumber()
-  total: number;
+  @IsOptional()
+  total?: number;
 
   @IsString()
   @IsOptional()

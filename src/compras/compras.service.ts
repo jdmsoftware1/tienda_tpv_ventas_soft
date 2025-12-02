@@ -23,10 +23,24 @@ export class ComprasService {
     await queryRunner.startTransaction();
 
     try {
+      // Calcular total si hay artículos y no se proporcionó total
+      let total = createCompraDto.total || 0;
+      if (createCompraDto.articulos && createCompraDto.articulos.length > 0 && !createCompraDto.total) {
+        total = createCompraDto.articulos.reduce(
+          (sum, art) => sum + (art.cantidad * art.precio_unitario),
+          0
+        );
+      }
+
+      // Si es VARIOS y no hay descripción, usar "VARIOS" por defecto
+      const descripcion = createCompraDto.es_varios && !createCompraDto.descripcion 
+        ? 'VARIOS' 
+        : createCompraDto.descripcion;
+
       const compra = this.compraRepository.create({
         cliente_id: createCompraDto.cliente_id,
-        total: createCompraDto.total,
-        descripcion: createCompraDto.descripcion,
+        total,
+        descripcion,
         es_varios: createCompraDto.es_varios || false,
       });
 

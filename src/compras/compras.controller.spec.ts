@@ -117,4 +117,108 @@ describe('ComprasController', () => {
       expect(service.remove).toHaveBeenCalledWith('1');
     });
   });
+
+  describe('create with VARIOS', () => {
+    it('should create a compra with es_varios=true and descripcion VARIOS by default', async () => {
+      const createDto: CreateCompraDto = {
+        cliente_id: 'cliente-1',
+        total: 50.00,
+        es_varios: true,
+      };
+
+      const mockCompraVarios = {
+        ...mockCompra,
+        es_varios: true,
+        total: 50.00,
+        descripcion: 'VARIOS',
+        articulos: [],
+      };
+
+      mockComprasService.create.mockResolvedValue(mockCompraVarios);
+
+      const result = await controller.create(createDto);
+
+      expect(service.create).toHaveBeenCalledWith(createDto);
+      expect(result.es_varios).toBe(true);
+      expect(result.descripcion).toBe('VARIOS');
+    });
+
+    it('should create a compra with custom descripcion when es_varios=true', async () => {
+      const createDto: CreateCompraDto = {
+        cliente_id: 'cliente-1',
+        total: 75.00,
+        es_varios: true,
+        descripcion: 'Artículos decorativos',
+      };
+
+      const mockCompraVarios = {
+        ...mockCompra,
+        es_varios: true,
+        total: 75.00,
+        descripcion: 'Artículos decorativos',
+        articulos: [],
+      };
+
+      mockComprasService.create.mockResolvedValue(mockCompraVarios);
+
+      const result = await controller.create(createDto);
+
+      expect(result.descripcion).toBe('Artículos decorativos');
+    });
+  });
+
+  describe('create with articulos', () => {
+    it('should create a compra with multiple articulos', async () => {
+      const createDto: CreateCompraDto = {
+        cliente_id: 'cliente-1',
+        es_varios: false,
+        articulos: [
+          { articulo_id: 'art-1', cantidad: 2, precio_unitario: 25.00 },
+          { articulo_id: 'art-2', cantidad: 1, precio_unitario: 50.00 },
+        ],
+      };
+
+      const mockCompraArticulos = {
+        ...mockCompra,
+        es_varios: false,
+        total: 100.00,
+        articulos: [
+          { articulo_id: 'art-1', cantidad: 2, precio_unitario: 25.00 },
+          { articulo_id: 'art-2', cantidad: 1, precio_unitario: 50.00 },
+        ],
+      };
+
+      mockComprasService.create.mockResolvedValue(mockCompraArticulos);
+
+      const result = await controller.create(createDto);
+
+      expect(result.articulos).toHaveLength(2);
+      expect(result.total).toBe(100.00);
+    });
+
+    it('should calculate total from articulos correctly', async () => {
+      const createDto: CreateCompraDto = {
+        cliente_id: 'cliente-1',
+        es_varios: false,
+        articulos: [
+          { articulo_id: 'art-1', cantidad: 3, precio_unitario: 10.00 },
+          { articulo_id: 'art-2', cantidad: 2, precio_unitario: 15.00 },
+        ],
+      };
+
+      // Total esperado: (3 * 10) + (2 * 15) = 30 + 30 = 60
+      const mockCompraArticulos = {
+        ...mockCompra,
+        es_varios: false,
+        total: 60.00,
+        articulos: createDto.articulos,
+      };
+
+      mockComprasService.create.mockResolvedValue(mockCompraArticulos);
+
+      const result = await controller.create(createDto);
+
+      expect(result.total).toBe(60.00);
+    });
+  });
 });

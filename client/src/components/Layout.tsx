@@ -133,7 +133,7 @@ export default function Layout() {
             <div className="flex items-center gap-2">
               <span className="font-semibold text-gray-700">Decoraciones Ángel e Hijas</span>
               <span className="px-2 py-0.5 bg-primary-100 text-primary-700 rounded-full text-xs font-medium">
-                v1.0.2
+                v1.0.3
               </span>
             </div>
             <div className="mt-2 md:mt-0">

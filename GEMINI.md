@@ -170,13 +170,30 @@ Ver archivo `prompts/PROMPT INICIAL.txt` para los requisitos originales del clie
 
 ### Páginas Implementadas
 - **Dashboard**: Gráficos con Recharts, estadísticas del mes, top deudores, stock bajo
-- **Clientes**: CRUD completo, búsqueda, balance, filtro por empleado
-- **Compras**: Registro con artículos o "VARIOS", filtro por empleado
+- **Clientes**: CRUD completo, búsqueda, balance, filtro por empleado, acciones rápidas (pago, compra, devolución)
+- **Compras**: Sistema de carrito con escaneo de código de barras, lista de artículos, opción "VARIOS", generación de tickets
 - **Pagos**: Registro simple, filtro por empleado
 - **Devoluciones**: Registro simple, filtro por empleado
 - **Artículos**: CRUD completo, búsqueda por código de barras
 - **Empleados**: CRUD completo
 - **Cierre de Mes**: Solo admin (en desarrollo)
+
+### Sistema de Compras (v1.0.3)
+El módulo de compras permite:
+1. **Seleccionar cliente** antes de agregar artículos
+2. **Escanear código de barras** o seleccionar artículos de una lista
+3. **Carrito de compras** con:
+   - Lista de artículos agregados
+   - Cantidad por artículo
+   - Precio unitario y subtotal
+   - Botón para eliminar artículos
+   - Total calculado automáticamente
+4. **Opción VARIOS**: Para compras sin artículos específicos (solo cantidad y descripción)
+5. **Generación de Ticket**:
+   - Vista previa del ticket
+   - Formato optimizado para impresión (80mm)
+   - Datos: empresa, fecha, cliente, artículos, total
+   - Botón de impresión
 
 ### Características UI
 - Sidebar colapsable con iconos (Lucide)
@@ -184,6 +201,14 @@ Ver archivo `prompts/PROMPT INICIAL.txt` para los requisitos originales del clie
 - Búsquedas rápidas por nombre o código
 - Footer con versión y copyright JDMSoftware
 - Diseño responsive con TailwindCSS
+- **Paleta de colores personalizada** (verde de la marca) configurable en `tailwind.config.js` y `src/index.css`
+
+### Paleta de Colores (Marca)
+Los colores de la aplicación están centralizados y son fácilmente modificables:
+- **Archivo principal**: `client/src/index.css` (variables CSS)
+- **Configuración Tailwind**: `client/tailwind.config.js`
+- **Color primario**: Verde (#22c55e) basado en el logotipo
+- **Uso**: Clases `primary-*` (ej: `bg-primary-600`, `text-primary-500`)
 
 ## Migración de Datos Legacy
 
