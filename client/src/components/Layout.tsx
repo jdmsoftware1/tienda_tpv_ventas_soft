@@ -14,6 +14,7 @@ import {
   Calendar,
   LogOut,
 } from 'lucide-react';
+import Logo from '../Images/Decoraciones.png';
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -50,8 +51,13 @@ export default function Layout() {
         <div className="flex h-full flex-col">
           {/* Header */}
           <div className="flex h-16 items-center justify-between px-4 border-b">
-            {sidebarOpen && (
-              <h1 className="text-xl font-bold text-primary-700">Ángel e Hijas</h1>
+            {sidebarOpen ? (
+              <div className="flex items-center gap-2">
+                <img src={Logo} alt="Logo" className="h-10 w-10 object-contain" />
+                <h1 className="text-lg font-bold text-primary-700">Ángel e Hijas</h1>
+              </div>
+            ) : (
+              <img src={Logo} alt="Logo" className="h-8 w-8 object-contain" />
             )}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -130,7 +136,8 @@ export default function Layout() {
         {/* Footer */}
         <footer className="bg-white border-t border-gray-200 py-4 px-6">
           <div className="flex flex-col md:flex-row items-center justify-between text-sm text-gray-500">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <img src={Logo} alt="Logo" className="h-8 w-8 object-contain" />
               <span className="font-semibold text-gray-700">Decoraciones Ángel e Hijas</span>
               <span className="px-2 py-0.5 bg-primary-100 text-primary-700 rounded-full text-xs font-medium">
                 v1.0.3
