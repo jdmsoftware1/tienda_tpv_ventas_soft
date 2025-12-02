@@ -2,12 +2,6 @@
 /dist
 /node_modules
 /build
-/public
-
-# Frontend
-/client/node_modules
-/client/dist
-/client/build
 
 # Logs
 logs

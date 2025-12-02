@@ -23,9 +23,9 @@ export class AuthController {
     const loginData = await this.authService.login(user);
 
     // Redirect to frontend with token
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     res.redirect(
-      `${frontendUrl}/auth/callback?token=${loginData.access_token}`,
+      `${frontendUrl}/login?token=${loginData.access_token}`,
     );
   }
 

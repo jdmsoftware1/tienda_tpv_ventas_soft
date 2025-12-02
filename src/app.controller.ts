@@ -28,4 +28,14 @@ export class AppController {
       documentation: 'Visita /auth/google para autenticarte',
     };
   }
+
+  @Public()
+  @Get('debug/oauth')
+  getOAuthConfig() {
+    return {
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      callbackUrl: process.env.GOOGLE_CALLBACK_URL,
+      frontendUrl: process.env.FRONTEND_URL,
+    };
+  }
 }
