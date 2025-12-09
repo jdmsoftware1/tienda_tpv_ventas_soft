@@ -17,6 +17,20 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   return token ? <>{children}</> : <Navigate to="/login" />;
 }
 
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { token, user } = useAuthStore();
+  
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (user?.role !== 'admin') {
+    return <Navigate to="/compras" />;
+  }
+  
+  return <>{children}</>;
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -31,14 +45,14 @@ function App() {
             </PrivateRoute>
           }
         >
-          <Route index element={<Dashboard />} />
+          <Route index element={<AdminRoute><Dashboard /></AdminRoute>} />
           <Route path="clientes" element={<Clientes />} />
           <Route path="empleados" element={<Empleados />} />
           <Route path="articulos" element={<Articulos />} />
           <Route path="compras" element={<Compras />} />
           <Route path="pagos" element={<Pagos />} />
           <Route path="devoluciones" element={<Devoluciones />} />
-          <Route path="cierre-mes" element={<CierreMes />} />
+          <Route path="cierre-mes" element={<AdminRoute><CierreMes /></AdminRoute>} />
         </Route>
       </Routes>
     </BrowserRouter>

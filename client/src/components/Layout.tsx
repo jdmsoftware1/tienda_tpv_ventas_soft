@@ -22,18 +22,15 @@ export default function Layout() {
   const { user, logout } = useAuthStore();
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: Home },
+    ...(user?.role === 'admin' ? [{ name: 'Dashboard', href: '/', icon: Home }] : []),
     { name: 'Clientes', href: '/clientes', icon: Users },
     { name: 'Empleados', href: '/empleados', icon: UserCircle },
     { name: 'Artículos', href: '/articulos', icon: Package },
     { name: 'Compras', href: '/compras', icon: ShoppingCart },
     { name: 'Pagos', href: '/pagos', icon: CreditCard },
     { name: 'Devoluciones', href: '/devoluciones', icon: RotateCcw },
+    ...(user?.role === 'admin' ? [{ name: 'Cierre de Mes', href: '/cierre-mes', icon: Calendar }] : []),
   ];
-
-  if (user?.role === 'admin') {
-    navigation.push({ name: 'Cierre de Mes', href: '/cierre-mes', icon: Calendar });
-  }
 
   const handleLogout = () => {
     logout();
