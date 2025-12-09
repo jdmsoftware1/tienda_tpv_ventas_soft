@@ -12,6 +12,7 @@ import {
   CreditCard,
   RotateCcw,
   Calendar,
+  Clock,
   LogOut,
 } from 'lucide-react';
 import Logo from '../Images/Decoraciones.png';
@@ -29,7 +30,10 @@ export default function Layout() {
     { name: 'Compras', href: '/compras', icon: ShoppingCart },
     { name: 'Pagos', href: '/pagos', icon: CreditCard },
     { name: 'Devoluciones', href: '/devoluciones', icon: RotateCcw },
-    ...(user?.role === 'admin' ? [{ name: 'Cierre de Mes', href: '/cierre-mes', icon: Calendar }] : []),
+    ...(user?.role === 'admin' ? [
+      { name: 'Registros Empleados', href: '/registros-empleados', icon: Clock },
+      { name: 'Cierre de Mes', href: '/cierre-mes', icon: Calendar }
+    ] : []),
   ];
 
   const handleLogout = () => {

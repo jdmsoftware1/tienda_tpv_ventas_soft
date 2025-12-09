@@ -10,6 +10,8 @@ import Compras from './pages/Compras';
 import Pagos from './pages/Pagos';
 import Devoluciones from './pages/Devoluciones';
 import CierreMes from './pages/CierreMes';
+import Fichaje from './pages/Fichaje';
+import RegistrosEmpleados from './pages/RegistrosEmpleados';
 import Layout from './components/Layout';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -37,6 +39,7 @@ function App() {
       <Toaster position="top-right" />
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/fichaje" element={<Fichaje />} />
         <Route
           path="/"
           element={
@@ -53,6 +56,7 @@ function App() {
           <Route path="pagos" element={<Pagos />} />
           <Route path="devoluciones" element={<Devoluciones />} />
           <Route path="cierre-mes" element={<AdminRoute><CierreMes /></AdminRoute>} />
+          <Route path="registros-empleados" element={<AdminRoute><RegistrosEmpleados /></AdminRoute>} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -19,6 +19,12 @@ export class Empleado {
   @Column()
   nombre: string;
 
+  @Column({ type: 'varchar', length: 32, nullable: true })
+  totp_secret: string | null;
+
+  @Column({ type: 'boolean', default: false })
+  totp_enabled: boolean;
+
   @OneToMany(() => Cliente, (cliente) => cliente.empleado)
   clientes: Cliente[];
 

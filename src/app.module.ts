@@ -15,6 +15,7 @@ import { PagosModule } from './pagos/pagos.module';
 import { DevolucionesModule } from './devoluciones/devoluciones.module';
 import { CierreMesModule } from './cierre-mes/cierre-mes.module';
 import { BackupModule } from './backup/backup.module';
+import { FichajesModule } from './fichajes/fichajes.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { BackupModule } from './backup/backup.module';
     DevolucionesModule,
     CierreMesModule,
     BackupModule,
+    FichajesModule,
   ],
   controllers: [AppController],
   providers: [
