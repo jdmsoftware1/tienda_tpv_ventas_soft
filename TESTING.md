@@ -217,8 +217,95 @@ npm test -- --verbose
 
 ---
 
+## 🔒 Tests de Seguridad
+
+### **AuthService** (`src/auth/auth.service.spec.ts`)
+**18 tests implementados:**
+
+#### Validación de Email (3 tests)
+- ✅ Rechaza emails no autorizados (403 Forbidden)
+- ✅ Acepta emails autorizados
+- ✅ Asigna rol ADMIN a emails de administradores
+
+#### Gestión de Tokens (4 tests)
+- ✅ Genera JWT con expiración de 2 horas
+- ✅ Añade tokens a blacklist en logout
+- ✅ Detecta tokens blacklisted
+- ✅ No detecta tokens válidos como blacklisted
+
+#### Validación de Sesión (3 tests)
+- ✅ Valida usuario por ID
+- ✅ Retorna null para IDs inválidos
+- ✅ Lanza error en logout con token inválido
+
+#### Google OAuth (3 tests)
+- ✅ Crea nuevo usuario en primer login
+- ✅ Actualiza google_id en usuarios existentes
+- ✅ Mantiene datos de usuarios existentes
+
+### **AuthController** (`src/auth/auth.controller.spec.ts`)
+**5 tests implementados:**
+
+- ✅ Redirige con token en autenticación exitosa
+- ✅ Incluye expires_in en redirección
+- ✅ Llama logout service correctamente
+- ✅ Maneja logout sin authorization header
+- ✅ Retorna perfil de usuario autenticado
+
+### **Ejecutar tests de seguridad**
+```bash
+npm test -- auth
+```
+
+**Resultado esperado:**
+```
+Test Suites: 2 passed, 2 total
+Tests:       18 passed, 18 total
+```
+
+---
+
+## 🛡️ Características de Seguridad Testeadas
+
+### 1. **Autenticación Google OAuth**
+- ✅ Solo emails autorizados pueden acceder
+- ✅ Validación contra lista blanca en `.env`
+- ✅ Asignación automática de roles
+
+### 2. **Expiración de Sesión**
+- ✅ Tokens expiran en 2 horas
+- ✅ Auto-logout 1 minuto antes de expiración
+- ✅ Verificación continua de expiración
+
+### 3. **Logout Seguro**
+- ✅ Tokens añadidos a blacklist
+- ✅ Tokens blacklisted rechazados en peticiones
+- ✅ Limpieza automática de tokens expirados
+
+### 4. **Control de Acceso**
+- ✅ Rutas protegidas con JWT Guard
+- ✅ Rutas admin protegidas con Roles Guard
+- ✅ Validación de permisos en cada petición
+
+---
+
+## 📊 Resumen de Tests por Módulo
+
+| Módulo | Service Tests | Controller Tests | Total |
+|--------|--------------|------------------|-------|
+| Auth | 13 | 5 | 18 |
+| Horarios | 8 | 4 | 12 |
+| Plantillas | 5 | 3 | 8 |
+| Bajas Médicas | 7 | 3 | 10 |
+| Vacaciones | 10 | 5 | 15 |
+| Festivos | 5 | 3 | 8 |
+| **TOTAL** | **48** | **23** | **71** |
+
+---
+
 ## 📚 Recursos
 
 - [Jest Documentation](https://jestjs.io/docs/getting-started)
 - [NestJS Testing](https://docs.nestjs.com/fundamentals/testing)
 - [Supertest](https://github.com/visionmedia/supertest)
+- [SECURITY.md](./SECURITY.md) - Documentación completa de seguridad

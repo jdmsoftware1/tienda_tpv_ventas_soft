@@ -17,8 +17,10 @@ export default function Login() {
       return;
     }
 
-    // Capturar token del callback de Google
+    // Capturar token y expires_in del callback de Google
     const tokenFromUrl = searchParams.get('token');
+    const expiresIn = searchParams.get('expires_in');
+    
     if (tokenFromUrl) {
       // Obtener información del usuario
       api
@@ -26,12 +28,13 @@ export default function Login() {
           headers: { Authorization: `Bearer ${tokenFromUrl}` },
         })
         .then((response) => {
-          setAuth(response.data, tokenFromUrl);
-          toast.success('¡Bienvenido!');
+          const expiresInSeconds = expiresIn ? parseInt(expiresIn) : 7200; // Default 2 horas
+          setAuth(response.data, tokenFromUrl, expiresInSeconds);
+          toast.success('¡Bienvenido! Tu sesión expirará en 2 horas');
           navigate('/');
         })
         .catch(() => {
-          toast.error('Error al autenticar');
+          toast.error('Error al autenticar. Verifica que tu email esté autorizado.');
         });
     }
   }, [token, searchParams, navigate, setAuth]);

@@ -14,14 +14,28 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: configService.get<string>('JWT_SECRET')!,
+      passReqToCallback: true, // Necesario para acceder al request
     });
   }
 
-  async validate(payload: any) {
+  async validate(req: any, payload: any) {
+    // Extraer token del header
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    
+    // Verificar si el token está en la blacklist
+    if (token) {
+      const isBlacklisted = await this.authService.isTokenBlacklisted(token);
+      if (isBlacklisted) {
+        throw new UnauthorizedException('Token inválido o sesión cerrada');
+      }
+    }
+
+    // Validar usuario
     const user = await this.authService.validateUserById(payload.sub);
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Usuario no encontrado');
     }
+    
     return user;
   }
 }

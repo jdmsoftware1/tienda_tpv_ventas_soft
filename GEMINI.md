@@ -4,8 +4,8 @@
 **Sistema de Gestión de Tienda - POS** para "Decoraciones Ángel e Hijas"
 - **Backend**: NestJS 11 + TypeORM + PostgreSQL (Neon)
 - **Frontend**: React 18 + Vite + TailwindCSS + Recharts
-- **Autenticación**: Google OAuth 2.0
-- **Versión**: 1.0.3
+- **Autenticación**: Google OAuth 2.0 + TOTP (Google Authenticator)
+- **Versión**: 1.0.4
 
 ## Prompt Inicial (Requisitos del Cliente)
 Ver archivo `prompts/PROMPT INICIAL.txt` para los requisitos originales del cliente.
@@ -30,6 +30,8 @@ Ver archivo `prompts/PROMPT INICIAL.txt` para los requisitos originales del clie
     *   Asociados a empleados
 *   **Empleados (Employees)**:
     *   Datos: ID_Empleado (único), Nombre
+    *   TOTP: totp_secret, totp_enabled (Google Authenticator)
+    *   Vacaciones: dias_vacaciones_anuales (22), dias_vacaciones_disponibles
     *   Relación: Un empleado tiene muchos clientes
 *   **Articulos (Articles)**:
     *   Datos: Código de Barras (único), Nombre, Precio Compra, Precio Venta, Cantidad
@@ -48,22 +50,60 @@ Ver archivo `prompts/PROMPT INICIAL.txt` para los requisitos originales del clie
     *   Trigger manual con rango de fechas personalizable
     *   Snapshots de totales: Ventas, Pagos, Devoluciones
     *   Filtrable por rango de fechas
+*   **Fichajes (Time Tracking)** - v1.0.4:
+    *   Registro de jornada laboral con TOTP
+    *   Tipos: Entrada, Salida, Inicio Descanso, Fin Descanso
+    *   Hash encadenado SHA-256 (inmutable, cumplimiento legal español)
+    *   IP tracking y verificación de integridad
+*   **Horarios (Schedules)** - v1.0.4:
+    *   Configuración semanal por empleado
+    *   Soporte jornada partida (mañana/tarde)
+    *   Cálculo automático de horas totales
+    *   Hash encadenado (inmutable)
+*   **Festivos (Holidays)** - v1.0.4:
+    *   Tipos: Nacional, Autonómico, Local
+    *   Integrado con cálculo de vacaciones
+    *   Hash encadenado (inmutable)
+*   **Vacaciones (Vacation Requests)** - v1.0.4:
+    *   Solicitud por empleados, aprobación por admin
+    *   Cálculo automático días laborables (excluye festivos y fines de semana)
+    *   Estados: Pendiente, Aprobada, Rechazada, Cancelada
+    *   Control de días disponibles
+    *   Hash encadenado (inmutable)
+*   **Verifactu & Facturae** - Preparatorio:
+    *   Entidades creadas para futura implementación
+    *   Cumplimiento Ley Crea y Crece (Verifactu)
+    *   Formato XML para facturación electrónica (Facturae)
     *   Analytics y estadísticas
 
 ### 2. Módulos Backend Implementados
 *   **AuthModule**: Google OAuth, JWT, Guards (JwtAuthGuard, RolesGuard)
-*   **EmpleadosModule**: CRUD completo, búsqueda
+*   **EmpleadosModule**: CRUD completo, búsqueda, gestión TOTP (QR, habilitar/deshabilitar)
 *   **ClientesModule**: CRUD, cálculo de balance, búsqueda
 *   **ArticulosModule**: CRUD, búsqueda por código de barras, gestión de stock
 *   **ComprasModule**: Creación con transacciones, soporte para artículos y "VARIOS"
 *   **PagosModule**: Registro de pagos
 *   **DevolucionesModule**: Registro de devoluciones
+*   **FichajesModule** - v1.0.4: Registro de jornada con TOTP, verificación de integridad
+*   **HorariosModule** - v1.0.4: Configuración horario semanal, jornada partida
+*   **FestivosModule** - v1.0.4: Gestión de festivos nacionales/autonómicos/locales
+*   **VacacionesModule** - v1.0.4: Solicitud, aprobación/rechazo, cálculo días laborables
 *   **CierreMesModule**: Cierre de mes, analytics, estadísticas del mes actual
 *   **BackupModule**: Backup manual de base de datos en SQL
 
 ### 3. Seguridad Implementada
 *   **Google OAuth 2.0**: Autenticación completa
 *   **JWT**: Tokens con expiración de 7 días
+*   **TOTP (Google Authenticator)** - v1.0.4:
+    *   Autenticación de dos factores para fichajes
+    *   Generación de QR por empleado
+    *   Códigos de 6 dígitos válidos 30 segundos
+    *   Gestión admin (habilitar/deshabilitar)
+*   **Hash Encadenado (Blockchain-like)** - v1.0.4:
+    *   SHA-256 en Fichajes, Horarios, Festivos, Vacaciones
+    *   Inmutabilidad garantizada
+    *   Verificación de integridad de cadena
+    *   Cumplimiento legal español
 *   **Guards**:
     *   JwtAuthGuard: Protege todas las rutas por defecto
     *   RolesGuard: Control de acceso basado en roles
@@ -87,6 +127,10 @@ Ver archivo `prompts/PROMPT INICIAL.txt` para los requisitos originales del clie
 - `GET /empleados/:id` - Obtener uno
 - `PATCH /empleados/:id` - Actualizar
 - `DELETE /empleados/:id` - Eliminar
+- `POST /empleados/:id/totp/generate` - Generar QR TOTP (admin) - v1.0.4
+- `POST /empleados/:id/totp/enable` - Habilitar TOTP (admin) - v1.0.4
+- `POST /empleados/:id/totp/disable` - Deshabilitar TOTP (admin) - v1.0.4
+- `GET /empleados/:id/totp/status` - Estado TOTP (admin) - v1.0.4
 
 #### Clientes
 - `POST /clientes` - Crear cliente
@@ -137,6 +181,32 @@ Ver archivo `prompts/PROMPT INICIAL.txt` para los requisitos originales del clie
 - `POST /backup` - Crear backup
 - `GET /backup` - Listar backups
 - `GET /backup/:filename` - Descargar backup
+
+#### Fichajes - v1.0.4
+- `POST /fichajes` - Registrar fichaje (público, requiere TOTP)
+- `GET /fichajes` - Listar fichajes (admin, con filtros)
+- `GET /fichajes/verify-integrity` - Verificar integridad (admin)
+
+#### Horarios - v1.0.4
+- `POST /horarios/empleado/:id` - Configurar horario semanal (admin)
+- `GET /horarios/empleado/:id` - Obtener horario de empleado
+- `GET /horarios` - Listar todos los horarios (admin)
+- `GET /horarios/verify-integrity` - Verificar integridad (admin)
+
+#### Festivos - v1.0.4
+- `POST /festivos` - Crear festivo (admin)
+- `GET /festivos?year=2025` - Listar festivos por año
+- `GET /festivos` - Listar todos los festivos
+- `GET /festivos/verify-integrity` - Verificar integridad (admin)
+
+#### Vacaciones - v1.0.4
+- `POST /vacaciones/solicitar` - Solicitar vacaciones
+- `PATCH /vacaciones/:id/aprobar` - Aprobar solicitud (admin)
+- `PATCH /vacaciones/:id/rechazar` - Rechazar solicitud (admin)
+- `GET /vacaciones/empleado/:id` - Ver vacaciones de empleado
+- `GET /vacaciones/pendientes` - Ver solicitudes pendientes (admin)
+- `GET /vacaciones` - Listar todas las vacaciones (admin)
+- `GET /vacaciones/verify-integrity` - Verificar integridad (admin)
 
 ### 5. Base de Datos
 *   **PostgreSQL** con TypeORM
@@ -234,13 +304,17 @@ tienda_project_nestjs/
 ├── src/                    # Backend NestJS
 │   ├── auth/               # Autenticación Google OAuth
 │   ├── clientes/           # Módulo de clientes
-│   ├── empleados/          # Módulo de empleados
+│   ├── empleados/          # Módulo de empleados (+ TOTP)
 │   ├── articulos/          # Módulo de artículos
 │   ├── compras/            # Módulo de compras
 │   ├── pagos/              # Módulo de pagos
 │   ├── devoluciones/       # Módulo de devoluciones
 │   ├── cierre-mes/         # Módulo de cierre de mes
 │   ├── backup/             # Módulo de backup
+│   ├── fichajes/           # Módulo de fichajes - v1.0.4
+│   ├── horarios/           # Módulo de horarios - v1.0.4
+│   ├── festivos/           # Módulo de festivos - v1.0.4
+│   ├── vacaciones/         # Módulo de vacaciones - v1.0.4
 │   └── entities/           # Entidades TypeORM
 ├── client/                 # Frontend React
 │   └── src/
@@ -256,3 +330,113 @@ tienda_project_nestjs/
 ## Datos Migrados (v1.0.2)
 - **6 empleados**: David, fe, Bego, Jimenez, Yaiza, BegoJi
 - **420 clientes** distribuidos por empleado
+
+---
+
+## Sistema de Fichajes, Horarios y Vacaciones (v1.0.4)
+
+### Cumplimiento Legal Español
+El sistema cumple con la **legislación española** sobre registro de jornada laboral:
+- **Real Decreto-ley 8/2019**: Registro obligatorio de jornada
+- **Inmutabilidad**: Hash encadenado SHA-256 (blockchain-like)
+- **Trazabilidad**: IP tracking y timestamps
+- **Conservación**: Registros permanentes e inalterables
+- **Inspección**: Accesible para autoridades laborales
+
+### Fichajes (Time Tracking)
+**Autenticación de Dos Factores (TOTP)**:
+- Cada empleado tiene Google Authenticator configurado
+- Admin genera QR único por empleado
+- Códigos de 6 dígitos válidos 30 segundos
+- Gestión admin: habilitar/deshabilitar TOTP
+
+**Tipos de Fichaje**:
+- **Entrada**: Inicio de jornada laboral
+- **Salida**: Fin de jornada laboral
+- **Inicio Descanso**: Comienzo de pausa/comida
+- **Fin Descanso**: Vuelta de pausa/comida
+
+**Seguridad**:
+- Hash SHA-256 único por fichaje
+- Encadenamiento con hash anterior
+- IP address tracking
+- Verificación de integridad de cadena
+- Inmutable (cumplimiento legal)
+
+**Acceso**:
+- **Empleados**: `/fichaje` (público, requiere TOTP)
+- **Admin**: `/registros-empleados` (ver todos, filtrar, exportar CSV)
+
+### Horarios Laborales
+**Configuración Semanal**:
+- Admin configura horario por empleado
+- Soporte para **jornada partida** (mañana/tarde)
+- Días libres configurables
+- Cálculo automático de horas totales
+
+**Ejemplo Jornada Partida**:
+```
+Lunes:
+  Mañana: 09:00 - 14:00 (5h)
+  Tarde:  16:00 - 20:00 (4h)
+  Total:  9h
+```
+
+**Inmutabilidad**:
+- Hash encadenado en cada configuración
+- Verificación de integridad
+- Historial de cambios permanente
+
+### Festivos
+**Tipos**:
+- **Nacional**: Festivos de ámbito nacional
+- **Autonómico**: Festivos de la comunidad autónoma
+- **Local**: Festivos locales/municipales
+
+**Integración**:
+- Excluidos automáticamente del cálculo de vacaciones
+- Considerados en días laborables
+- Inmutables (hash encadenado)
+
+### Vacaciones
+**Flujo de Solicitud**:
+1. **Empleado** solicita vacaciones (fecha inicio/fin)
+2. Sistema calcula **días laborables** (excluye fines de semana y festivos)
+3. Verifica **días disponibles** del empleado
+4. **Admin** aprueba o rechaza con observaciones
+5. Si aprueba: descuenta días del empleado automáticamente
+
+**Control de Días**:
+- **22 días laborables** por defecto (legislación española)
+- Campo `dias_vacaciones_anuales` configurable por empleado
+- Campo `dias_vacaciones_disponibles` actualizado automáticamente
+- Cálculo preciso excluyendo festivos
+
+**Estados**:
+- **Pendiente**: Esperando aprobación admin
+- **Aprobada**: Aceptada por admin, días descontados
+- **Rechazada**: Denegada por admin con motivo
+- **Cancelada**: Cancelada por empleado o admin
+
+**Inmutabilidad**:
+- Hash encadenado en cada solicitud
+- Registro permanente de aprobaciones/rechazos
+- Trazabilidad completa (quién aprobó, cuándo)
+
+### Verificación de Integridad
+Cada módulo tiene endpoint de verificación:
+- `GET /fichajes/verify-integrity`
+- `GET /horarios/verify-integrity`
+- `GET /festivos/verify-integrity`
+- `GET /vacaciones/verify-integrity`
+
+**Proceso de Verificación**:
+1. Recalcula hash de cada registro
+2. Compara con hash almacenado
+3. Verifica encadenamiento (hash_anterior)
+4. Retorna `valid: true/false`
+
+### Documentación Adicional
+- **INSTRUCCIONES_FICHAJE.md**: Guía para empleados y admin
+- **FLUJO_FICHAJE.md**: Diagramas y ejemplos de uso
+- **VERIFACTU_FACTURAE.md**: Preparación para cumplimiento fiscal

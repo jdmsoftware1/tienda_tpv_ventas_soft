@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { User } from '../entities/user.entity';
+import { TokenBlacklist } from '../entities/token-blacklist.entity';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -13,13 +14,13 @@ import { RolesGuard } from './guards/roles.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, TokenBlacklist]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
-        signOptions: { expiresIn: '7d' },
+        signOptions: { expiresIn: '2h' }, // Token expira en 2 horas
       }),
       inject: [ConfigService],
     }),

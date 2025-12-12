@@ -12,31 +12,52 @@ import {
   CreditCard,
   RotateCcw,
   Calendar,
+  Clock,
+  ClipboardList,
+  CalendarClock,
+  CalendarDays,
+  Palmtree,
+  ChevronDown,
+  ChevronRight,
+  UsersRound,
+  FileText,
+  Stethoscope,
   LogOut,
 } from 'lucide-react';
 import Logo from '../Images/Decoraciones.png';
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [personalMenuOpen, setPersonalMenuOpen] = useState(false);
   const location = useLocation();
   const { user, logout } = useAuthStore();
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: Home },
+    ...(user?.role === 'admin' ? [{ name: 'Dashboard', href: '/', icon: Home }] : []),
+    { name: 'Fichaje', href: '/fichaje', icon: Clock },
     { name: 'Clientes', href: '/clientes', icon: Users },
     { name: 'Empleados', href: '/empleados', icon: UserCircle },
     { name: 'Artículos', href: '/articulos', icon: Package },
     { name: 'Compras', href: '/compras', icon: ShoppingCart },
     { name: 'Pagos', href: '/pagos', icon: CreditCard },
     { name: 'Devoluciones', href: '/devoluciones', icon: RotateCcw },
+    ...(user?.role === 'admin' ? [
+      { name: 'Registros Empleados', href: '/registros-empleados', icon: ClipboardList },
+      { name: 'Cierre de Mes', href: '/cierre-mes', icon: Calendar }
+    ] : []),
   ];
 
-  if (user?.role === 'admin') {
-    navigation.push({ name: 'Cierre de Mes', href: '/cierre-mes', icon: Calendar });
-  }
+  const personalSubMenu = [
+    { name: 'Horarios Semanales', href: '/horarios', icon: CalendarClock },
+    { name: 'Plantillas Horarias', href: '/plantillas-horarias', icon: FileText },
+    { name: 'Vacaciones', href: '/vacaciones', icon: Palmtree },
+    { name: 'Festivos', href: '/festivos', icon: CalendarDays },
+    { name: 'Bajas Médicas', href: '/bajas-medicas', icon: Stethoscope },
+    { name: 'Calendario Personal', href: '/calendario-personal', icon: Calendar },
+  ];
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     window.location.href = '/login';
   };
 
@@ -72,7 +93,7 @@ export default function Layout() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 space-y-1 px-3 py-4">
+          <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
             {navigation.map((item) => {
               const isActive = location.pathname === item.href;
               const Icon = item.icon;
@@ -92,6 +113,55 @@ export default function Layout() {
                 </Link>
               );
             })}
+
+            {/* Gestión de Personal - Submenú */}
+            <div className="pt-2">
+              <button
+                onClick={() => setPersonalMenuOpen(!personalMenuOpen)}
+                className={`w-full flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  personalSubMenu.some(item => location.pathname === item.href)
+                    ? 'bg-primary-50 text-primary-600'
+                    : 'text-gray-700 hover:bg-primary-50 hover:text-primary-600'
+                }`}
+                title={!sidebarOpen ? 'Gestión de Personal' : undefined}
+              >
+                <div className="flex items-center gap-3">
+                  <UsersRound className="h-5 w-5 flex-shrink-0" />
+                  {sidebarOpen && <span>Gestión de Personal</span>}
+                </div>
+                {sidebarOpen && (
+                  personalMenuOpen ? (
+                    <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 flex-shrink-0" />
+                  )
+                )}
+              </button>
+
+              {/* Submenú items */}
+              {personalMenuOpen && sidebarOpen && (
+                <div className="mt-1 ml-4 space-y-1 border-l-2 border-primary-200 pl-4">
+                  {personalSubMenu.map((item) => {
+                    const isActive = location.pathname === item.href;
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                          isActive
+                            ? 'bg-primary-50 text-primary-600'
+                            : 'text-gray-600 hover:bg-primary-50 hover:text-primary-600'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4 flex-shrink-0" />
+                        <span>{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </nav>
 
           {/* User section */}
