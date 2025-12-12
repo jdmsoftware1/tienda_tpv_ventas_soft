@@ -16,6 +16,11 @@ import { DevolucionesModule } from './devoluciones/devoluciones.module';
 import { CierreMesModule } from './cierre-mes/cierre-mes.module';
 import { BackupModule } from './backup/backup.module';
 import { FichajesModule } from './fichajes/fichajes.module';
+import { HorariosModule } from './horarios/horarios.module';
+import { FestivosModule } from './festivos/festivos.module';
+import { VacacionesModule } from './vacaciones/vacaciones.module';
+import { PlantillasHorariasModule } from './plantillas-horarias/plantillas-horarias.module';
+import { BajasMedicasModule } from './bajas-medicas/bajas-medicas.module';
 
 @Module({
   imports: [
@@ -38,6 +43,11 @@ import { FichajesModule } from './fichajes/fichajes.module';
     CierreMesModule,
     BackupModule,
     FichajesModule,
+    HorariosModule,
+    FestivosModule,
+    VacacionesModule,
+    PlantillasHorariasModule,
+    BajasMedicasModule,
   ],
   controllers: [AppController],
   providers: [

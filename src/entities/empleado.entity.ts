@@ -25,6 +25,14 @@ export class Empleado {
   @Column({ type: 'boolean', default: false })
   totp_enabled: boolean;
 
+  // Días de vacaciones anuales (por defecto 22 días laborables en España)
+  @Column({ type: 'int', default: 22 })
+  dias_vacaciones_anuales: number;
+
+  // Días de vacaciones disponibles este año
+  @Column({ type: 'decimal', precision: 5, scale: 2, default: 22 })
+  dias_vacaciones_disponibles: number;
+
   @OneToMany(() => Cliente, (cliente) => cliente.empleado)
   clientes: Cliente[];
 

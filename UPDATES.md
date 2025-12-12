@@ -1,5 +1,61 @@
 # UPDATES.md
 
+## [v1.0.4] - 2025-12-09 - Sistema de Horarios, Vacaciones y Festivos
+
+### Sistema de Gestión de Horarios
+*   ✅ **Entidad Horario** con hash encadenado (inmutable)
+*   ✅ **Configuración de horario semanal** por empleado
+*   ✅ **Soporte para jornada partida** (mañana y tarde)
+*   ✅ **Días libres** configurables
+*   ✅ **Cálculo automático** de horas totales por día
+*   ✅ **API endpoints**:
+    - `POST /api/horarios/empleado/:id` - Configurar horario semanal (admin)
+    - `GET /api/horarios/empleado/:id` - Obtener horario de empleado
+    - `GET /api/horarios` - Listar todos los horarios (admin)
+    - `GET /api/horarios/verify-integrity` - Verificar integridad (admin)
+
+### Sistema de Festivos
+*   ✅ **Entidad Festivo** con hash encadenado (inmutable)
+*   ✅ **Tipos de festivos**: Nacional, Autonómico, Local
+*   ✅ **Integración con cálculo de vacaciones** (excluye festivos)
+*   ✅ **API endpoints**:
+    - `POST /api/festivos` - Crear festivo (admin)
+    - `GET /api/festivos?year=2025` - Listar festivos por año
+    - `GET /api/festivos/verify-integrity` - Verificar integridad (admin)
+
+### Sistema de Vacaciones
+*   ✅ **Entidad Vacacion** con hash encadenado (inmutable)
+*   ✅ **Solicitud de vacaciones** por empleados
+*   ✅ **Aprobación/Rechazo** por administradores
+*   ✅ **Cálculo automático de días laborables** (excluye fines de semana y festivos)
+*   ✅ **Control de días disponibles** por empleado (22 días por defecto)
+*   ✅ **Estados**: Pendiente, Aprobada, Rechazada, Cancelada
+*   ✅ **API endpoints**:
+    - `POST /api/vacaciones/solicitar` - Solicitar vacaciones
+    - `PATCH /api/vacaciones/:id/aprobar` - Aprobar solicitud (admin)
+    - `PATCH /api/vacaciones/:id/rechazar` - Rechazar solicitud (admin)
+    - `GET /api/vacaciones/empleado/:id` - Ver vacaciones de empleado
+    - `GET /api/vacaciones/pendientes` - Ver solicitudes pendientes (admin)
+    - `GET /api/vacaciones/verify-integrity` - Verificar integridad (admin)
+
+### Actualización Entidad Empleado
+*   ✅ Campo `dias_vacaciones_anuales` (int, default: 22)
+*   ✅ Campo `dias_vacaciones_disponibles` (decimal, default: 22)
+*   ✅ Descuento automático al aprobar vacaciones
+
+### Seguridad e Inmutabilidad
+*   ✅ **Hash SHA-256** en cada registro de horario, festivo y vacación
+*   ✅ **Encadenamiento de hashes** (blockchain-like)
+*   ✅ **Verificación de integridad** para cada módulo
+*   ✅ **Cumplimiento legal** con registros inalterables
+
+### Módulos Creados
+*   ✅ HorariosModule (service, controller, entity)
+*   ✅ FestivosModule (service, controller, entity)
+*   ✅ VacacionesModule (service, controller, entity)
+
+---
+
 ## [v1.0.3] - 2025-12-02 - Sistema de Compras Mejorado + UI
 
 ### Sistema de Compras Rediseñado
